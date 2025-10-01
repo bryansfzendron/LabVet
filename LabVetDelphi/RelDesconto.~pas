@@ -1,0 +1,236 @@
+unit RelDesconto;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, QRCtrls, QuickRpt, ExtCtrls, DB, DBTables;
+
+type
+  TFrmRelDesconto = class(TForm)
+    QuickRep1: TQuickRep;
+    PageHeader: TQRBand;
+    QRDBImageEsquerda: TQRDBImage;
+    QRDBText5: TQRDBText;
+    QRDBText6: TQRDBText;
+    QRLabel18: TQRLabel;
+    QRShape3: TQRShape;
+    QRShape4: TQRShape;
+    QRLabel19: TQRLabel;
+    QRLabel20: TQRLabel;
+    QRLabel21: TQRLabel;
+    QRLabel16: TQRLabel;
+    PageFooter: TQRBand;
+    QRLabel13: TQRLabel;
+    QRDBText28: TQRDBText;
+    QRDBText29: TQRDBText;
+    QRDBText30: TQRDBText;
+    QRDBText35: TQRDBText;
+    QRDBText37: TQRDBText;
+    QRShape1: TQRShape;
+    QRDBText38: TQRDBText;
+    QRDBText39: TQRDBText;
+    QRDBText40: TQRDBText;
+    QRLabel17: TQRLabel;
+    QRLabel22: TQRLabel;
+    QRDBText15: TQRDBText;
+    QRDBImage1: TQRDBImage;
+    QRShape5: TQRShape;
+    QRDBText16: TQRDBText;
+    QRBand2: TQRBand;
+    QRDBText9: TQRDBText;
+    QRDBText1: TQRDBText;
+    QRDBText11: TQRDBText;
+    QRDBText10: TQRDBText;
+    QRDBText12: TQRDBText;
+    QRDBText13: TQRDBText;
+    QRGroup1: TQRGroup;
+    QRBand1: TQRBand;
+    QRLabel2: TQRLabel;
+    QRLabel3: TQRLabel;
+    QRLabel5: TQRLabel;
+    QRLabel6: TQRLabel;
+    QRDBText33: TQRDBText;
+    QRLabel10: TQRLabel;
+    QRLabel11: TQRLabel;
+    QRLabel14: TQRLabel;
+    QRLabel4: TQRLabel;
+    QRLabel9: TQRLabel;
+    QRLabel15: TQRLabel;
+    QryContas: TQuery;
+    QryContasCODSEQCONTAS: TAutoIncField;
+    QryContasTIPOACAO: TStringField;
+    QryContasDESCRICAO: TStringField;
+    QryContasQTDEPARC: TIntegerField;
+    QryContasNUMPARC: TIntegerField;
+    QryContasDTEMISSAO: TDateTimeField;
+    QryContasDTVENC: TDateTimeField;
+    QryContasDTPGTO: TDateTimeField;
+    QryContasVLCALCULADO: TFloatField;
+    QryContasVLDESCONTO: TFloatField;
+    QryContasVLFATURA: TFloatField;
+    QryContasVLPGTO: TFloatField;
+    QryContasCODCLIENTE: TIntegerField;
+    QryContasCODFORN: TIntegerField;
+    QryContasCONFERIDO: TIntegerField;
+    QryContasNDOCTIT: TStringField;
+    QryContasATIVO: TStringField;
+    QryContasCODBANCO: TIntegerField;
+    QryContasTIPOCADASTRO: TStringField;
+    QryContasDESCR: TStringField;
+    QryContasCodCliente_1: TAutoIncField;
+    QryContasNome: TStringField;
+    QryContasEndereco: TStringField;
+    QryContasnumero: TStringField;
+    QryContasCompl: TStringField;
+    QryContasBairro: TStringField;
+    QryContasCEP: TStringField;
+    QryContasCidade: TStringField;
+    QryContasUF: TStringField;
+    QryContasTelefone: TStringField;
+    QryContasFax: TStringField;
+    QryContasCelular: TStringField;
+    QryContasemail: TStringField;
+    QryContascpf_cgc: TStringField;
+    QryContasContato: TStringField;
+    QryContasDataCadastro: TDateTimeField;
+    QryContasRestricao: TStringField;
+    QryContasDataAtualizacao: TDateTimeField;
+    QryContasAtivo_1: TStringField;
+    QryContasCodVetResp: TIntegerField;
+    QryContasCodRespProf: TIntegerField;
+    QryContasCodProfLaudo: TAutoIncField;
+    QryContasAbrevConselho: TStringField;
+    QryContasNumConselho: TStringField;
+    QryContasNomeProfLaudo: TStringField;
+    QryContasUF_1: TStringField;
+    QryContasAssinatura: TBlobField;
+    QryContasAtivo_2: TStringField;
+    QryContasFuncao: TStringField;
+    DSContas: TDataSource;
+    QRLabel7: TQRLabel;
+    QRBand3: TQRBand;
+    QRLabel8: TQRLabel;
+    QRLabel12: TQRLabel;
+    QRLabel23: TQRLabel;
+    QRLabel24: TQRLabel;
+    QRLabel25: TQRLabel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure QRBand1BeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+    procedure QRBand2BeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+    procedure QRBand3AfterPrint(Sender: TQRCustomBand;
+      BandPrinted: Boolean);
+    procedure QRBand3BeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+    procedure QRBand1AfterPrint(Sender: TQRCustomBand;
+      BandPrinted: Boolean);
+    procedure QRGroup1AfterPrint(Sender: TQRCustomBand;
+      BandPrinted: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    vlcalc,vldesc,vlfat,vlpag : double;
+    vltcalc,vltdesc,vltfat,vltpag : double;
+  end;
+
+var
+  FrmRelDesconto: TFrmRelDesconto;
+
+implementation
+
+uses Cobranca, DM_LABVET;
+
+{$R *.dfm}
+
+procedure TFrmRelDesconto.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+    Release;
+    FrmRelDesconto := nil;
+end;
+
+procedure TFrmRelDesconto.FormCreate(Sender: TObject);
+begin
+   vlcalc :=0;
+   vldesc := 0;
+   vlfat := 0;
+   vlpag := 0;
+   vltcalc :=0;
+   vltdesc := 0;
+   vltfat := 0;
+   vltpag := 0;
+
+end;
+
+procedure TFrmRelDesconto.QRBand1BeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+begin
+    QrLabel2.Caption := FormatFloat('#,###,##0.00',vlcalc);
+    QrLabel3.Caption := FormatFloat('#,###,##0.00',vlDesc);
+    QrLabel5.Caption := FormatFloat('#,###,##0.00',vlFat);
+    QrLabel6.Caption := FormatFloat('#,###,##0.00',vlPag);
+
+  
+
+
+
+end;
+
+procedure TFrmRelDesconto.QRBand2BeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+begin
+   VlCalc := VlCalc + FrmCobranca.QryContasVLCALCULADO.Value;
+   VlDesc := VLDesc + FrmCobranca.QryContasVLDESCONTO.Value;
+   VLFat := VLFat + FrmCobranca.QryContasVLFATURA.Value;
+   VLPag := VLPag + FrmCobranca.QryContasVLPGTO.Value;
+
+   VltCalc := VltCalc + FrmCobranca.QryContasVLCALCULADO.Value;
+   VltDesc := VLtDesc + FrmCobranca.QryContasVLDESCONTO.Value;
+   VLtFat := VLtFat + FrmCobranca.QryContasVLFATURA.Value;
+   VLtPag := VLtPag + FrmCobranca.QryContasVLPGTO.Value;
+
+
+end;
+
+procedure TFrmRelDesconto.QRBand3AfterPrint(Sender: TQRCustomBand;
+  BandPrinted: Boolean);
+begin
+   vltcalc :=0;
+   vltdesc := 0;
+   vltfat := 0;
+   vltpag := 0;
+end;
+
+procedure TFrmRelDesconto.QRBand3BeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+begin
+    QrLabel12.Caption := FormatFloat('#,###,##0.00',vltcalc);
+    QrLabel23.Caption := FormatFloat('#,###,##0.00',vltDesc);
+    QrLabel24.Caption := FormatFloat('#,###,##0.00',vltFat);
+    QrLabel25.Caption := FormatFloat('#,###,##0.00',vltPag);
+
+end;
+
+procedure TFrmRelDesconto.QRBand1AfterPrint(Sender: TQRCustomBand;
+  BandPrinted: Boolean);
+begin
+   vlcalc :=0;
+   vldesc := 0;
+   vlfat := 0;
+   vlpag := 0;
+end;
+
+procedure TFrmRelDesconto.QRGroup1AfterPrint(Sender: TQRCustomBand;
+  BandPrinted: Boolean);
+begin
+ vlcalc :=0;
+   vldesc := 0;
+   vlfat := 0;
+   vlpag := 0;
+end;
+
+end.

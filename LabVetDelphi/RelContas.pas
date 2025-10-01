@@ -1,0 +1,377 @@
+unit RelContas;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, QRCtrls, QuickRpt, ExtCtrls, DB, DBTables;
+
+type
+  TFrmRelContas = class(TForm)
+    QuickRep1: TQuickRep;
+    PageHeader: TQRBand;
+    QRLabel3: TQRLabel;
+    QRDBImageEsquerda: TQRDBImage;
+    QRDBText6: TQRDBText;
+    QRDBText17: TQRDBText;
+    QRDBText22: TQRDBText;
+    QRDBText24: TQRDBText;
+    QRDBText23: TQRDBText;
+    QRDBText18: TQRDBText;
+    QRDBText21: TQRDBText;
+    QRDBText16: TQRDBText;
+    QRDBText5: TQRDBText;
+    ColumnHeaderBand1: TQRBand;
+    QRLabel4: TQRLabel;
+    QRBand1: TQRBand;
+    QRDBText1: TQRDBText;
+    PageFooter: TQRBand;
+    QRLabel2: TQRLabel;
+    QRLabel1: TQRLabel;
+    QRLabel5: TQRLabel;
+    QRLabel6: TQRLabel;
+    QRLabel7: TQRLabel;
+    QRDBText2: TQRDBText;
+    QRDBText4: TQRDBText;
+    QRLabel8: TQRLabel;
+    QRLabel9: TQRLabel;
+    QRLabel10: TQRLabel;
+    QRLabel11: TQRLabel;
+    QRLabel12: TQRLabel;
+    PageNumber: TQRSysData;
+    QRDateTime: TQRSysData;
+    QRLabel13: TQRLabel;
+    QrySaldoEntrada: TQuery;
+    QrySaldoSaida: TQuery;
+    QrySaldo: TQuery;
+    UpdateSQL1: TUpdateSQL;
+    QRMemo1: TQRMemo;
+    QryBanco: TQuery;
+    QryEntrada: TQuery;
+    QrySaida: TQuery;
+    QrySaldoCODBANCO: TIntegerField;
+    QrySaldoENTRADA2: TFloatField;
+    QrySaldoSAIDA2: TFloatField;
+    QrySaldoRECEBIDO: TFloatField;
+    QrySaldoPAGO: TFloatField;
+    QrySaldoCODBANCO_1: TAutoIncField;
+    QrySaldoNUMBANCO: TStringField;
+    QrySaldoNOMEBANCO: TStringField;
+    QrySaldoNUMAGENCIA: TStringField;
+    QrySaldoNOMEAGENCIA: TStringField;
+    QrySaldoNUMCONTA: TStringField;
+    QrySaldoATIVO: TStringField;
+    QryBancoCODBANCO: TAutoIncField;
+    QryBancoNUMBANCO: TStringField;
+    QryBancoNOMEBANCO: TStringField;
+    QryBancoNUMAGENCIA: TStringField;
+    QryBancoNOMEAGENCIA: TStringField;
+    QryBancoNUMCONTA: TStringField;
+    QryBancoATIVO: TStringField;
+    QrySaldoSaidaCODBANCO: TIntegerField;
+    QrySaldoSaidaNomeBanco: TStringField;
+    QrySaldoSaidanumconta: TStringField;
+    QrySaldoSaidaVLpago: TFloatField;
+    QrySaidaCODBANCO: TIntegerField;
+    QrySaidaNomeBanco: TStringField;
+    QrySaidanumconta: TStringField;
+    QrySaidaVLpago: TFloatField;
+    QrySaldoEntradaCODBANCO: TIntegerField;
+    QrySaldoEntradaNomeBanco: TStringField;
+    QrySaldoEntradanumconta: TStringField;
+    QrySaldoEntradaVLRecebido: TFloatField;
+    QryEntradaCODBANCO: TIntegerField;
+    QryEntradaNomeBanco: TStringField;
+    QryEntradanumconta: TStringField;
+    QryEntradaVLRecebido: TFloatField;
+    procedure QRBand1BeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure PageFooterBeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+    procedure PageFooterAfterPrint(Sender: TQRCustomBand;
+      BandPrinted: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    vlrec, vlpag : Double;
+  end;
+
+var
+  FrmRelContas: TFrmRelContas;
+
+implementation
+
+uses Contas, DM_LABVET, Animais;
+
+{$R *.dfm}
+
+procedure TFrmRelContas.QRBand1BeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+begin
+   IF FrmContas.QryContasTipoAcao.Value = 'R' then
+   begin
+      QRlabel10.Caption := FrmContas.QryContasClinica.Value;
+      IF FrmContas.QryContasVLPGTO.Value > 0 then
+      begin
+          QRlabel12.Caption := FormatFloat('#,###,##0.00',FrmContas.QryContasVLPGTO.Value);
+          QrLabel11.Caption := '';
+          vlrec := vlrec + FrmContas.QryContasVLPGTO.Value;
+      end
+      else
+      begin
+          QRlabel12.Caption := FormatFloat('#,###,##0.00',FrmContas.QryContasVLFATURA.Value);
+          QrLabel11.Caption := '';
+          vlrec := vlrec + FrmContas.QryContasVLFAtura.Value;
+      end;
+   end
+   else
+   begin
+      QRlabel10.Caption := FrmContas.QryContasFornecedor.AsString;
+      IF FrmContas.QryContasVLPGTO.Value > 0 then
+      begin
+          QRlabel11.Caption := FormatFloat('#,###,##0.00',FrmContas.QryContasVLPGTO.Value);
+          QrLabel12.Caption := '';
+          vlpag := vlpag + FrmContas.QryContasVLPGTO.Value;
+      end
+      else
+      begin
+          QRlabel11.Caption := FormatFloat('#,###,##0.00',FrmContas.QryContasVLFATURA.Value);
+          QrLabel12.Caption := '';
+          vlpag := vlpag + FrmContas.QryContasVLFATURA.Value;
+
+      end;
+   end;
+
+end;
+
+procedure TFrmRelContas.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+    Release;
+    FrmRelContas := nil;
+end;
+
+procedure TFrmRelContas.FormCreate(Sender: TObject);
+begin
+   vlrec := 0;
+   vlpag := 0;
+end;
+
+procedure TFrmRelContas.PageFooterBeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+var
+  total : double;
+begin
+/// Parte 1 - Saldo Anterior
+    total := 0;
+    QrySaldo.Close;
+    QrySaldo.Active := true;
+    QrySaldoSaida.First;
+    While not QrySaldoSaida.Eof do
+    begin
+       QrySaldo.Insert;
+       QrySaldoCodBanco.Value := QrySaldoSaidaCodBanco.Value;
+       total := total - QrySaldoSaidavlPago.Value;
+       QrySaldo.FieldByName('saida').Value := QrySaldoSaidavlPago.Value;
+       QrySaldoNomeBanco.Value := QrySaldoSaidaNomeBanco.Value;
+       QrySaldoNumConta.Value := QrySaldoSaidaNumConta.Value;
+       QrySaldo.FieldByName('Entrada').Value := 0;
+       QrySaldopago.Value := 0;
+       QrySaldoRecebido.Value := 0;
+       QrySaldo.Post;
+       QrySaldoSaida.Next;
+    end;
+    QrySaldoEntrada.First;
+    While not QrySaldoEntrada.Eof do
+    begin
+       IF QrySaldo.Locate('CodBanco',QrySaldoEntradaCodBanco.Value,[]) then
+          QrySaldo.Edit
+       else
+       begin
+          QrySaldo.Insert;
+          QrySaldoCodBanco.Value := QrySaldoEntradaCodBanco.Value;
+          QrySaldo.FieldByName('Saida').Value := 0;
+          QrySaldopago.Value := 0;
+          QrySaldoRecebido.Value := 0;
+          QrySaldoNomeBanco.Value := QrySaldoEntradaNomeBanco.Value;
+          QrySaldoNumConta.Value := QrySaldoEntradaNumConta.Value;
+       end;
+       total := total + QrySaldoEntradavlRecebido.Value;
+       QrySaldo.FieldByName('Entrada').Value := QrySaldoEntradavlRecebido.Value;
+       QrySaldo.Post;
+       QrySaldoEntrada.Next;
+    end;
+    QryBanco.Close;
+    QryBanco.Active := True;
+    While not QryBanco.Eof do
+    begin
+       IF not QrySaldo.Locate('CodBanco',QryBancoCodBanco.Value,[]) then
+       begin
+          QrySaldo.Insert;
+          QrySaldoCodBanco.Value := QryBancoCodBanco.Value;
+          QrySaldo.FieldByName('Saida').Value := 0;
+          QrySaldoNomeBanco.Value := QryBancoNomeBanco.Value;
+          QrySaldoNumConta.Value := QryBancoNumConta.Value;
+          QrySaldo.FieldByName('Entrada').Value := 0;
+          QrySaldopago.Value := 0;
+          QrySaldoRecebido.Value := 0;
+          QrySaldo.Post;
+       end
+       else
+       begin
+          QrySaldo.Edit;
+          QrySaldoNomeBanco.Value := QryBancoNomeBanco.Value;
+          QrySaldoNomeAgencia.Value := QryBancoNomeAgencia.Value;
+          QrySaldo.Post;
+       end;
+       QryBanco.Next;
+    end;
+    QrySaldo.First;
+    Qrmemo1.Lines.Clear;
+
+    While not QrySaldo.Eof do
+    begin
+       QrMemo1.Lines.Add('Banco..: '+ QrySaldoNomeBanco.Value+' '+QrySaldoNumConta.Value+
+                          '  Saldo..: '+formatfloat('#,###,##0.00',(qrysaldo.fieldbyname('Entrada').Value-QrySaldo.fieldbyname('Saida').Value)));
+
+       QrySaldo.Next;
+    end;
+    Qrmemo1.Lines.Add('-----------------------------------------');
+    IF Frmcontas.RadioGroup4.ItemIndex = 1 then
+        QrMemo1.Lines.Add('Saldo Anterior em '+DATETOSTR(frmcontas.Dti.Date)+'..: '+formatfloat('#,###,##0.00',total))
+    else
+        QrMemo1.Lines.Add('Saldo em '+DATETOSTR(frmcontas.Dtf.Date)+'..: '+formatfloat('#,###,##0.00',total));
+
+////// Parte 2 Entrada e Saída Atual
+
+    total := 0;
+
+    QrySaida.First;
+    While not QrySaida.Eof do
+    begin
+       IF QrySaldo.Locate('CodBanco',QrySaidaCodBanco.Value,[]) then
+          QrySaldo.Edit
+       else
+       begin
+          QrySaldo.Insert;
+          QrySaldoCodBanco.Value := QrySaidaCodBanco.Value;
+          QrySaldoRecebido.Value := 0;
+          QrySaldo.FieldByName('saida').Value := QrySaidavlPago.Value;
+          QrySaldo.FieldByName('Entrada').Value := 0;
+       end;
+       total := total - QrySaidavlPago.Value;
+       QrySaldo.FieldByName('Pago').Value := QrySaidavlPago.Value;
+       QrySaldoNomeBanco.Value := QrySaidaNomeBanco.Value;
+       QrySaldoNumConta.Value := QrySaidaNumConta.Value;
+
+       QrySaldo.Post;
+       QrySaida.Next;
+    end;
+    QryEntrada.First;
+    While not QryEntrada.Eof do
+    begin
+       IF QrySaldo.Locate('CodBanco',QryEntradaCodBanco.Value,[]) then
+          QrySaldo.Edit
+       else
+       begin
+          QrySaldo.Insert;
+          QrySaldoCodBanco.Value := QryEntradaCodBanco.Value;
+          QrySaldo.FieldByName('Saida').Value := 0;
+          QrySaldo.FieldByName('Entrada').Value := QryEntradavlRecebido.Value;
+          QrySaldoPago.Value := 0;
+          QrySaldoNomeBanco.Value := QryEntradaNomeBanco.Value;
+          QrySaldoNumConta.Value := QryEntradaNumConta.Value;
+       end;
+       total := total + QryEntradavlRecebido.Value;
+       QrySaldo.FieldByName('Recebido').Value := QryEntradavlRecebido.Value;
+       QrySaldo.Post;
+       QryEntrada.Next;
+    end;
+    QryBanco.Close;
+    QryBanco.Active := True;
+    While not QryBanco.Eof do
+    begin
+       IF not QrySaldo.Locate('CodBanco',QryBancoCodBanco.Value,[]) then
+       begin
+          QrySaldo.Insert;
+          QrySaldoCodBanco.Value := QryBancoCodBanco.Value;
+          QrySaldo.FieldByName('Saida').Value := 0;
+          QrySaldoNomeBanco.Value := QryBancoNomeBanco.Value;
+          QrySaldoNumConta.Value := QryBancoNumConta.Value;
+          QrySaldo.FieldByName('Entrada').Value := 0;
+          QrySaldoPago.Value := 0;
+          QrySaldoRecebido.Value := 0;
+          QrySaldo.Post;
+       end
+       else
+       begin
+          QrySaldo.Edit;
+          QrySaldoNomeBanco.Value := QryBancoNomeBanco.Value;
+          QrySaldoNomeAgencia.Value := QryBancoNomeAgencia.Value;
+          QrySaldo.Post;
+       end;
+       QryBanco.Next;
+    end;
+    QrySaldo.First;
+    Qrmemo1.Lines.Add('-----------------------------------------------------');
+    total := 0;
+    While not QrySaldo.Eof do
+    begin
+       QrMemo1.Lines.Add(copy('Banco..: '+ QrySaldoNomeBanco.Value+' '+QrySaldoNumConta.Value+'               ',1,30)+
+                          '  Entrada..: '+copy(formatfloat('#,###,##0.00',(qrysaldo.fieldbyname('RECEBIDO').Value))+'                ',1,13)+
+                          '  Saida....: '+copy(formatfloat('#,###,##0.00',(qrysaldo.fieldbyname('PAGO').Value))+'                ',1,13)+
+                          '  Saldo....: '+formatfloat('#,###,##0.00',(qrysaldo.fieldbyname('Entrada').Value-QrySaldo.fieldbyname('Saida').Value+QrySaldoRecebido.Value-QrySaldoPago.Value   )));
+       total := total + Qrysaldo.fieldbyName('Entrada').Value + QrySaldoRecebido.Value - QrySaldo.fieldbyname('Saida').Value - QrySaldoPago.Value;                   
+       QrySaldo.Next;
+    end;
+    Qrmemo1.Lines.Add('-----------------------------------------');
+    IF Frmcontas.RadioGroup4.ItemIndex = 1 then
+        QrMemo1.Lines.Add('Saldo Atual '+DATETOSTR(frmcontas.Dtf.Date)+'..: '+formatfloat('#,###,##0.00',total))
+    else
+        QrMemo1.Lines.Add('Saldo Atual '+DATETOSTR(frmcontas.Dtf.Date)+'..: '+formatfloat('#,###,##0.00',total));
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Qrlabel8.Caption := FormatFloat('#,###,##0.00',vlrec);
+    Qrlabel9.Caption := FormatFloat('#,###,##0.00',vlpag);
+    IF FrmContas.RadioGroup4.ItemIndex = 1 then
+    begin
+        Qrlabel13.Caption := 'Saldo Atual .: '+FormatFloat('#,###,##0.00',(total));
+        IF (total) > 0 then
+           QrLabel13.Font.Color := ClBlue
+        else
+           QrLabel13.Font.Color := ClRed;
+
+    end;
+    IF FrmContas.RadioGroup4.ItemIndex = 0 then
+    begin
+       Qrlabel13.Caption := 'Saldo Atual .: '+FormatFloat('#,###,##0.00',(total + Vlrec - vlpag));
+       IF (total+vlrec-vlpag) > 0 then
+          QrLabel13.Font.Color := ClBlue
+       else
+          QrLabel13.Font.Color := ClRed;
+    end;
+
+end;
+
+procedure TFrmRelContas.PageFooterAfterPrint(Sender: TQRCustomBand;
+  BandPrinted: Boolean);
+begin
+    vlrec:=0;
+    vlpag:=0;
+end;
+
+end.

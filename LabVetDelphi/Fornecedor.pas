@@ -1,0 +1,254 @@
+unit Fornecedor;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, DB, DBTables, RxLookup, Mask, DBCtrls, StdCtrls, Grids, DBGrids,
+  ComCtrls, ExtCtrls, Buttons, Spin;
+
+type
+  TFrmFornecedor = class(TForm)
+    Panel1: TPanel;
+    Label1: TLabel;
+    EdNome: TEdit;
+    BbtnPesquisar: TBitBtn;
+    RadioGroup1: TRadioGroup;
+    Panel3: TPanel;
+    PageControl1: TPageControl;
+    TSPesquisa: TTabSheet;
+    Panel2: TPanel;
+    BBtnIncluir: TBitBtn;
+    BBtnAlterar: TBitBtn;
+    BbtnExcluir: TBitBtn;
+    BbtnImprimir: TBitBtn;
+    BBtnFechat: TBitBtn;
+    Panel5: TPanel;
+    DBGrid1: TDBGrid;
+    TSManutencao: TTabSheet;
+    Panel4: TPanel;
+    BBtnGravar: TBitBtn;
+    BBtnCancelar: TBitBtn;
+    ScrollBox1: TScrollBox;
+    DBCheckBox2: TDBCheckBox;
+    QryQualquer: TQuery;
+    UDPQualquer: TUpdateSQL;
+    DSQualquer: TDataSource;
+    QryQualquerCODFORN: TAutoIncField;
+    QryQualquerNOMEFORN: TStringField;
+    QryQualquerAPELIDO: TStringField;
+    QryQualquerCGC: TStringField;
+    QryQualquerDTCADASTRO: TDateTimeField;
+    QryQualquerCODIGO: TIntegerField;
+    QryQualquerINSCRICAO: TStringField;
+    QryQualquerENDERECO: TStringField;
+    QryQualquerBAIRRO: TStringField;
+    QryQualquerCIDADE: TStringField;
+    QryQualquerCEP: TStringField;
+    QryQualquerUF: TStringField;
+    QryQualquerFONE: TStringField;
+    QryQualquerFONE1: TStringField;
+    QryQualquerFONE_FAX: TStringField;
+    QryQualquerEMAIL: TStringField;
+    QryQualquerCONTATO: TStringField;
+    QryQualquerAtivo: TStringField;
+    Label2: TLabel;
+    DBEdit1: TDBEdit;
+    Label3: TLabel;
+    DBEdit2: TDBEdit;
+    Label4: TLabel;
+    DBEdit3: TDBEdit;
+    Label7: TLabel;
+    DBEdit6: TDBEdit;
+    Label8: TLabel;
+    DBEdit7: TDBEdit;
+    Label9: TLabel;
+    DBEdit8: TDBEdit;
+    Label10: TLabel;
+    DBEdit9: TDBEdit;
+    Label11: TLabel;
+    DBEdit10: TDBEdit;
+    Label12: TLabel;
+    DBEdit11: TDBEdit;
+    Label13: TLabel;
+    DBEdit12: TDBEdit;
+    Label14: TLabel;
+    DBEdit13: TDBEdit;
+    Label15: TLabel;
+    DBEdit14: TDBEdit;
+    Label16: TLabel;
+    DBEdit15: TDBEdit;
+    Label17: TLabel;
+    DBEdit16: TDBEdit;
+    QryQualquerDIA_VENC: TIntegerField;
+    Label5: TLabel;
+    SpinEdit1: TSpinEdit;
+    procedure BBtnFechatClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure BbtnPesquisarClick(Sender: TObject);
+    procedure BBtnIncluirClick(Sender: TObject);
+    procedure BBtnAlterarClick(Sender: TObject);
+    procedure BbtnExcluirClick(Sender: TObject);
+    procedure BBtnGravarClick(Sender: TObject);
+    procedure BBtnCancelarClick(Sender: TObject);
+    procedure BbtnImprimirClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmFornecedor: TFrmFornecedor;
+
+implementation
+
+uses RelFornecedor;
+
+{$R *.dfm}
+
+procedure TFrmFornecedor.BBtnFechatClick(Sender: TObject);
+begin
+   close;
+end;
+
+procedure TFrmFornecedor.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+    Release;
+    FrmFornecedor := nil;
+end;
+
+procedure TFrmFornecedor.FormCreate(Sender: TObject);
+begin
+   TSPesquisa.TabVisible := False;
+   TSManutencao.TabVisible := False;
+   PageControl1.ActivePage := TSPesquisa;
+
+end;
+
+procedure TFrmFornecedor.FormActivate(Sender: TObject);
+begin
+   QryQualquer.Close;
+   BbtnINcluir.Enabled := False;
+   BbtnAlterar.Enabled := False;
+   BbtnExcluir.Enabled := False;
+   BbtnImprimir.Enabled := False;
+   RadioGroup1.ItemIndex := 0;
+
+end;
+
+procedure TFrmFornecedor.BbtnPesquisarClick(Sender: TObject);
+begin
+   QryQualquer.Close;
+   QryQualquer.ParamByName('Nome').Value := TRIM(EdNome.Text)+'%';
+   IF RadioGroup1.ItemIndex = 0 then
+      QryQualquer.ParamByName('Status').Value := 'S';
+   IF RadioGroup1.ItemIndex = 1 then
+      QryQualquer.ParamByName('Status').Value := 'N';
+   IF RadioGroup1.ItemIndex = 2 then
+      QryQualquer.ParamByName('Status').Value := '-1';
+
+   QryQualquer.Active := True;
+   if qryqualquer.Eof then
+   begin
+      BbtnINcluir.Enabled := True;
+      BbtnAlterar.Enabled := False;
+      BbtnExcluir.Enabled := False;
+      BbtnImprimir.Enabled := False;
+   end
+   else
+   begin
+       BbtnINcluir.Enabled := True;
+       BbtnAlterar.Enabled := True;
+       BbtnExcluir.Enabled := True;
+       BbtnImprimir.Enabled := True;
+   end;
+
+
+
+end;
+
+procedure TFrmFornecedor.BBtnIncluirClick(Sender: TObject);
+begin
+   QryQualquer.Insert;
+   QryQualquerAtivo.Value := 'S';
+//   QryQualquerRestricao.Value := 'N';
+   QryQualquerDtCadastro.Value := now;
+   PageControl1.ActivePage := TSManutencao;
+//   DbCheckBox1.Checked := False;
+   DbCheckBox2.Checked := True;
+   DbEdit1.SetFocus;
+   Panel1.Enabled := False;
+
+end;
+
+procedure TFrmFornecedor.BBtnAlterarClick(Sender: TObject);
+begin
+   QryQualquer.Edit;
+//   QryQualquerDataAtualizacao.Value := now;
+   SpinEdit1.Value := QryQualquerdia_venc.Value;
+   PageControl1.ActivePage := TSMAnutencao;
+   DbEdit1.SetFocus;
+   Panel1.Enabled := False;
+
+end;
+
+procedure TFrmFornecedor.BbtnExcluirClick(Sender: TObject);
+begin
+   if ((QryQualquer.Eof) and (QryQualquer.RecNo = 0)) then
+      ShowMessage('Último Encontrado, Pesquise Novamente')
+  else
+     if Application.MessageBox('Deseja excluir ? ',
+         'Confirme', 4  + MB_ICONQUESTION)= idYes then
+     begin
+        try
+           QryQualquer.Delete;
+           QryQualquer.ApplyUpdates;
+           QryQualquer.Close;
+           QryQualquer.Active := true;
+        except
+           ShowMessage('Exclusão Proibida, Cadastro já Utilizado..');
+           QryQualquer.Close;
+           QryQualquer.Active := true;
+        end;
+     end;
+
+
+
+end;
+
+procedure TFrmFornecedor.BBtnGravarClick(Sender: TObject);
+begin
+   QryQualquerdia_venc.Value :=  SpinEdit1.Value;   
+   QryQualquer.Post;
+   QryQualquer.ApplyUpdates;
+   QryQualquer.Close;
+   PageControl1.ActivePage := TSPesquisa;
+   Panel1.Enabled := True;
+   BbtnPesquisar.Click;
+
+end;
+
+procedure TFrmFornecedor.BBtnCancelarClick(Sender: TObject);
+begin
+   QryQualquer.Cancel;
+   QryQualquer.Close;
+   PageControl1.ActivePage := TSPesquisa;
+   Panel1.Enabled := True;
+   BbtnPesquisar.Click;
+
+end;
+
+procedure TFrmFornecedor.BbtnImprimirClick(Sender: TObject);
+begin
+    IF FrmRelFornecedores = nil then
+       FrmRelFornecedores := TFrmRelFornecedores.Create(Self);
+    FrmRelFornecedores.QuickRep1.Preview;
+    FrmRelFornecedores.Close;
+
+end;
+
+end.

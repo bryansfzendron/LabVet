@@ -1,0 +1,886 @@
+unit Contas;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ToolEdit, StdCtrls, Buttons, ComCtrls, DBCtrls, RxLookup,
+  CurrEdit, RXDBCtrl, ExtCtrls, DateUtils, Mask, Grids, DBGrids, DBTables, DB;
+
+type
+  TFrmContas = class(TForm)
+    ScrollBox: TScrollBox;
+    ScrollBox2: TScrollBox;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    Panel1: TPanel;
+    SBExcluir: TSpeedButton;
+    SBIncluir: TSpeedButton;
+    SBAlterar: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    DBGrid1: TDBGrid;
+    TabSheet2: TTabSheet;
+    Panel2: TPanel;
+    ScrollBox1: TScrollBox;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label13: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label8: TLabel;
+    DBTP: TDBText;
+    Label12: TLabel;
+    DBEdit1: TDBEdit;
+    DBEdit12: TDBEdit;
+    RadioGroup3: TRadioGroup;
+    DBComboBox1: TDBComboBox;
+    DBDateEdit1: TDBDateEdit;
+    RxDBCalcEdit1: TRxDBCalcEdit;
+    RxDBLookupCombo2: TRxDBLookupCombo;
+    RxDBCalcEdit2: TRxDBCalcEdit;
+    DBCheckBox1: TDBCheckBox;
+    DBEdit2: TDBEdit;
+    Panel3: TPanel;
+    btngravar: TSpeedButton;
+    btncancelar: TSpeedButton;
+    StatusBar1: TStatusBar;
+    Panel11: TPanel;
+    Label1: TLabel;
+    BbtnPesquisar: TBitBtn;
+    RadioGroup1: TRadioGroup;
+    RadioGroup2: TRadioGroup;
+    RxDBLookupCombo1: TRxDBLookupCombo;
+    GroupBox3: TGroupBox;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    GroupBox1: TGroupBox;
+    Label21: TLabel;
+    Dtf: TDateEdit;
+    QryContas: TQuery;
+    DSCOntas: TDataSource;
+    UpdateSQL1: TUpdateSQL;
+    QryCliente: TQuery;
+    QryClienteCodCliente: TAutoIncField;
+    QryClienteNome: TStringField;
+    QryClienteEndereco: TStringField;
+    QryClientenumero: TStringField;
+    QryClienteCompl: TStringField;
+    QryClienteBairro: TStringField;
+    QryClienteCEP: TStringField;
+    QryClienteCidade: TStringField;
+    QryClienteUF: TStringField;
+    QryClienteTelefone: TStringField;
+    QryClienteFax: TStringField;
+    QryClienteCelular: TStringField;
+    QryClienteemail: TStringField;
+    QryClientecpf_cgc: TStringField;
+    QryClienteContato: TStringField;
+    QryClienteDataCadastro: TDateTimeField;
+    QryClienteRestricao: TStringField;
+    QryClienteDataAtualizacao: TDateTimeField;
+    QryClienteAtivo: TStringField;
+    QryClienteCodVetResp: TIntegerField;
+    DSCliente: TDataSource;
+    QryForn: TQuery;
+    DSForn: TDataSource;
+    QryFornCODFORN: TAutoIncField;
+    QryFornNOMEFORN: TStringField;
+    QryFornAPELIDO: TStringField;
+    QryFornCGC: TStringField;
+    QryFornDTCADASTRO: TDateTimeField;
+    QryFornCODIGO: TIntegerField;
+    QryFornINSCRICAO: TStringField;
+    QryFornENDERECO: TStringField;
+    QryFornBAIRRO: TStringField;
+    QryFornCIDADE: TStringField;
+    QryFornCEP: TStringField;
+    QryFornUF: TStringField;
+    QryFornFONE: TStringField;
+    QryFornFONE1: TStringField;
+    QryFornFONE_FAX: TStringField;
+    QryFornEMAIL: TStringField;
+    QryFornCONTATO: TStringField;
+    QryFornAtivo: TStringField;
+    RxDBLookupCombo3: TRxDBLookupCombo;
+    RxDBLookupCombo4: TRxDBLookupCombo;
+    SPContas: TStoredProc;
+    QryBanco: TQuery;
+    DSBanco: TDataSource;
+    QryBancoCODBANCO: TAutoIncField;
+    QryBancoNUMBANCO: TStringField;
+    QryBancoNOMEBANCO: TStringField;
+    QryBancoNUMAGENCIA: TStringField;
+    QryBancoNOMEAGENCIA: TStringField;
+    QryBancoNUMCONTA: TStringField;
+    QryBancoATIVO: TStringField;
+    RxDBLookupCombo5: TRxDBLookupCombo;
+    Label14: TLabel;
+    QryEstorno: TQuery;
+    QryEstornoCodMovPedido: TAutoIncField;
+    QryEstornoCodigoInterno: TStringField;
+    QryEstornoCodigoPedido: TIntegerField;
+    QryEstornoSenha: TStringField;
+    QryEstornoCodCliente: TIntegerField;
+    QryEstornoCodEspecie: TIntegerField;
+    QryEstornoCodProfSolic: TIntegerField;
+    QryEstornoCodProfLaudo: TIntegerField;
+    QryEstornoAssinaturaScanner: TStringField;
+    QryEstornoDataPedido: TDateTimeField;
+    QryEstornoHoraPedido: TStringField;
+    QryEstornoDataEnvio: TDateTimeField;
+    QryEstornoValorTotal: TFloatField;
+    QryEstornoPago: TStringField;
+    QryEstornoFormadeEnvio: TStringField;
+    QryEstornoRetirar: TStringField;
+    QryEstornoRetirado: TStringField;
+    QryEstornoContato: TStringField;
+    QryEstornoStatus: TStringField;
+    QryEstornoCodSeqContas: TIntegerField;
+    QryEstornoNomeAnimal: TStringField;
+    QryEstornoProprietario: TStringField;
+    QryEstornoIdade: TStringField;
+    QryEstornoSexoAnimal: TStringField;
+    QryEstornoDataLiberacao: TDateTimeField;
+    QryEstornoRaca: TStringField;
+    SPEstorno: TStoredProc;
+    Label15: TLabel;
+    DBDateEdit2: TDBDateEdit;
+    Label16: TLabel;
+    RxDBCalcEdit3: TRxDBCalcEdit;
+    SBPagaRecebe: TSpeedButton;
+    RadioGroup4: TRadioGroup;
+    Dti: TDateEdit;
+    SBImprimir: TSpeedButton;
+    SBCancelaPgto: TSpeedButton;
+    QryContasCODSEQCONTAS: TAutoIncField;
+    QryContasTIPOACAO: TStringField;
+    QryContasDESCRICAO: TStringField;
+    QryContasQTDEPARC: TIntegerField;
+    QryContasNUMPARC: TIntegerField;
+    QryContasDTEMISSAO: TDateTimeField;
+    QryContasDTVENC: TDateTimeField;
+    QryContasDTPGTO: TDateTimeField;
+    QryContasVLCALCULADO: TFloatField;
+    QryContasVLDESCONTO: TFloatField;
+    QryContasVLFATURA: TFloatField;
+    QryContasVLPGTO: TFloatField;
+    QryContasCODCLIENTE: TIntegerField;
+    QryContasCODFORN: TIntegerField;
+    QryContasCONFERIDO: TIntegerField;
+    QryContasNDOCTIT: TStringField;
+    QryContasATIVO: TStringField;
+    QryContasCODBANCO: TIntegerField;
+    QryContasTIPOCADASTRO: TStringField;
+    QryContasDESCR: TStringField;
+    QryContasCodRespProf: TIntegerField;
+    QryContasCODDESCONTO: TIntegerField;
+    QryContasClinica: TStringField;
+    QryContasFornecedor: TStringField;
+    QryContasdia_venc: TIntegerField;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure BbtnPesquisarClick(Sender: TObject);
+    procedure RadioGroup2Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure DBGrid1CellClick(Column: TColumn);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure SBIncluirClick(Sender: TObject);
+    procedure RadioGroup3Click(Sender: TObject);
+    procedure btngravarClick(Sender: TObject);
+    procedure btncancelarClick(Sender: TObject);
+    procedure SBExcluirClick(Sender: TObject);
+    procedure SBAlterarClick(Sender: TObject);
+    procedure SBPagaRecebeClick(Sender: TObject);
+    procedure RadioGroup4Click(Sender: TObject);
+    procedure SBImprimirClick(Sender: TObject);
+    procedure SBCancelaPgtoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmContas: TFrmContas;
+
+implementation
+
+uses RelContas;
+
+{$R *.dfm}
+
+procedure TFrmContas.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   Release;
+   FrmContas := Nil;
+end;
+
+procedure TFrmContas.BbtnPesquisarClick(Sender: TObject);
+begin
+
+
+   QryContas.Close;
+   QryContas.SQL.Clear;
+   QryContas.SQL.Add(' Select c.*, cl.nome as Clinica, f.nomeforn as Fornecedor, f.dia_venc ');
+   QryContas.SQL.Add(' From Contas c  ');
+   QryContas.SQL.Add('          left join cliente cl on c.codcliente = cl.codcliente ');
+   QryContas.SQL.Add('          left join fornecedor f on c.codforn = f.codforn ');
+   QryContas.SQL.Add(' Where ( 1 = 1 ');
+   if radiogroup1.ItemIndex = 1 then
+      QryContas.SQL.Add(' and c.tipoacao = ''P''');
+   if radiogroup1.ItemIndex = 2 then
+      QryContas.SQL.Add(' and c.tipoacao = ''R''');
+   if radiogroup2.ItemIndex = 1 then
+      IF RxDBLookupCombo1.KeyValue > 0 then
+         QryContas.SQL.Add('  and  c.CodCliente = '+RxDBLookupCombo1.KeyValue )
+      else
+         QryContas.SQL.Add('  and  c.CodCliente > 0 ');
+
+   if radiogroup2.ItemIndex = 2 then
+      IF RxDBLookupCombo3.KeyValue > 0 then
+         QryContas.SQL.Add('  and  c.CodForn = '+RxDBLookupCombo3.KeyValue )
+      else
+         QryContas.SQL.Add('  and  c.CodForn > 0 ');
+
+   if radiogroup4.ItemIndex = 0 then
+   begin
+       QryContas.SQL.Add(' and c.dtvenc between convert(datetime,'''+ datetostr(dti.Date)+''',103) and convert(datetime,'''+ DatetoStr(dtf.Date)+''',103)');
+       QryContas.SQL.Add(' and           ((c.vlpgto is null) ) ');
+   end
+   else
+   begin
+       QryContas.SQL.Add(' and c.dtpgto between convert(datetime,'''+ datetostr(dti.Date)+''',103) and convert(datetime,'''+ DatetoStr(dtf.Date)+''',103)');
+       QryContas.SQL.Add('and           ((c.vlpgto is not null) ) ' );
+   end;
+   QryContas.SQL.Add(' )');
+   if radiogroup4.ItemIndex = 0 then
+      QryContas.SQL.Add(' order by dtvenc ')
+   else
+      QryContas.SQL.Add(' order by dtpgto ');
+   QryContas.Active := True;
+   IF QryCOntas.Eof then
+   begin
+     IF RadioGroup4.ItemIndex = 0 then
+        SBIncluir.Enabled := True
+     else
+        SBIncluir.Enabled := False;
+     SBAlterar.Enabled := False;
+     SBExcluir.Enabled := False;
+     SBPagaRecebe.Enabled := False;
+     SBCancelaPgto.Enabled := False;
+     SBImprimir.Enabled := False;
+   end
+   else
+   begin
+     IF RadioGroup4.ItemIndex = 0 then
+     begin
+        SBIncluir.Enabled := True;
+        SBPagaRecebe.Enabled := True;
+        SBAlterar.Enabled := True;
+     end
+     else
+     begin
+        SBIncluir.Enabled := False;
+        SBPagaRecebe.Enabled := False;
+        SBAlterar.Enabled := False;
+        SBCancelaPgto.Enabled := True;
+     end;
+     SBExcluir.Enabled := True;
+     SBImprimir.Enabled := True;
+   end;
+
+end;
+
+procedure TFrmContas.RadioGroup2Click(Sender: TObject);
+begin
+   IF RadioGroup2.ItemIndex = 0 then
+   begin
+      RxDBLookupCombo3.Visible := False;
+      RxDBLookupCombo1.Visible := False;
+      Label1.Caption := '.....';
+   end;
+
+   IF RadioGroup2.ItemIndex = 1 then
+   begin
+      RxDBLookupCombo3.Visible := False;
+      RxDBLookupCombo1.Visible := True;
+      Label1.Caption := 'Clientes';
+   end;
+   IF RadioGroup2.ItemIndex = 2 then
+   begin
+      RxDBLookupCombo3.Visible := True;
+      RxDBLookupCombo1.Visible := False;
+      Label1.Caption := 'Fornecedor';
+   end;
+
+end;
+
+procedure TFrmContas.FormActivate(Sender: TObject);
+begin
+    RxDBLookupCombo3.Visible := False;
+    RxDBLookupCombo1.Visible := False;
+    Label1.Caption := '.....';
+    QryCliente.Close;
+    QryCliente.Active := True;
+    QryForn.Close;
+    QryForn.Active := True;
+    QryBanco.Close;
+    QryBanco.Active := True;
+    RadioGroup1.ItemIndex := 0;
+    RadioGroup2.ItemIndex := 0;
+
+end;
+
+procedure TFrmContas.FormCreate(Sender: TObject);
+var
+  dd,mm,aa :word;
+begin
+   TabSheet1.TabVisible := False;
+   TabSheet2.TabVisible := False;
+   PageControl1.ActivePage := TabSheet1;
+   SBPagaRecebe.Caption := '&Paga'+#13+'Recebe';
+   decodedate(now,aa,mm,dd);
+       dti.Date := encodedate(aa,mm,1);
+    dtf.Date := now;
+end;
+
+procedure TFrmContas.SpeedButton2Click(Sender: TObject);
+begin
+   close;
+end;
+
+procedure TFrmContas.DBGrid1CellClick(Column: TColumn);
+begin
+    DBGrid1.Canvas.Brush.Color:= clBlue;
+
+end;
+
+procedure TFrmContas.DBGrid1DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+    if RadioGroup4.ItemIndex = 0 then
+    begin
+       if QryContasTipoAcao.Value = 'P' then
+      //Azul
+          DBGrid1.Canvas.Brush.Color:= $00FFE29F
+       else
+          DBGrid1.Canvas.Brush.Color:= clInfoBk;//$0083F7FA;
+       if (QryContasDTVenc.Value < Now)  then
+          DBGrid1.Canvas.Brush.Color:= clred;
+    end;
+    if RadioGroup4.ItemIndex = 1 then
+    begin
+       if QryContasTipoAcao.Value = 'P' then
+      //Azul
+          DBGrid1.Canvas.Brush.Color:= $00FFE29F
+       else
+          DBGrid1.Canvas.Brush.Color:= clInfoBk;//$0083F7FA;
+    end;
+
+   {if DM_AgendaPaciente.qryTipoConsulta.Value = 'U' then
+      DBGrid.Canvas.Font.Color :=clRed;
+   {else
+      if DM_AgendaPaciente.qryTipoConsulta.Value = 'R' then
+        DBGrid.Canvas.Font.Color :=$00C0CFB1
+     else DBGrid.Canvas.Font.Color :=$004A46F7;}
+
+
+DBGrid1.Canvas.Font.Color:= clWindowText;
+DBGrid1.Canvas.FillRect(Rect);
+DBGrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+end;
+
+procedure TFrmContas.SBIncluirClick(Sender: TObject);
+begin
+   Panel1.Enabled := False;
+   PageControl1.ActivePage := TabSheet2;
+   QryContas.Insert;
+/////
+   Label15.Visible := False;
+   Label16.Visible := False;
+   DBDateEdit2.Visible := False;
+   RXDBCalcEdit3.Visible := False;
+
+   DBEdit1.Enabled := True;
+   DBEdit2.Enabled := True;
+   RXDBCalcEdit2.Enabled := True;
+   DBComboBox1.Enabled := True;
+   RXDBCalcEdit1.Enabled := True;
+   RadioGroup3.Enabled := True;
+   IF RadioGroup3.ItemIndex = 0 then
+   begin
+      RxDBLookupCombo2.Enabled := True;
+      RxDBLookupCombo2.Visible := True;
+      RxDBLookupCombo4.Visible := False;
+      Label5.Caption := 'Cliente';
+   end;
+
+
+   QryContasNumParc.Value := 1;
+   QryContasqtdeParc.Value := 1;
+   RXDBCalcedit2.Value := 1;
+//   IF QryContasDia_venc.Value = 0 then
+//      RxDBCalcEdit2.Visible := False
+//   else
+//      RxDBCalcEdit2.Visible := True;
+   DBComboBox1.ItemIndex := 0;
+   QryContasTipoAcao.Value := 'P';
+   DBCheckbox1.Checked := True;
+   QryContasAtivo.Value := 'S';
+   RadioGroup3.ItemIndex := 1;
+   Label5.Caption := 'Fornecedor';
+   RxDBLookupCombo2.Visible := False;
+   RxDBLookupCombo4.Visible := True;
+   QryContasCodBanco.Value := QryBancoCodBanco.Value;
+   RxDBLookupCombo5.KeyValue := QryBancoCodBanco.Value;
+
+   
+end;
+
+procedure TFrmContas.RadioGroup3Click(Sender: TObject);
+begin
+   IF RadioGroup3.ItemIndex = 0 then
+   begin
+      Label5.Caption := 'Cliente';
+      RxDBLookupCombo2.Visible := True;
+      RxDBLookupCombo4.Visible := False;
+   end
+   else
+   begin
+      Label5.Caption := 'Fornecedor';
+      RxDBLookupCombo2.Visible := False;
+      RxDBLookupCombo4.Visible := True;
+   end;
+end;
+
+procedure TFrmContas.btngravarClick(Sender: TObject);
+var
+   i : integer;
+   aa,mm,dd : word;
+   codseqcontas : integer;
+begin
+    IF Length(DBEDit1.Text) < 1 then
+    begin
+       ShowMessage('Informar Descrição...');
+       DBEdit1.SetFocus;
+       Exit;
+    end;
+    IF RXDbcalcEdit2.Value < 1 then
+    begin
+       ShowMessage('Informar Quantidade de Parcelas...');
+       RXDBCalcEdit2.SetFocus;
+       Exit;
+    end;
+//    IF RXDbcalcEdit1.Value < 1 then
+//    begin
+//       ShowMessage('Informar Valor da Fatura..., Se necessário');
+//       RXDBCalcEdit1.SetFocus;
+//       Exit;
+//    end;
+    IF (DBDateEdit1.Date < incday(now,-120)) then
+    begin
+       ShowMessage('Informar Vencimento de Parcelas...');
+       DBDateEdit1.SetFocus;
+       Exit;
+    end;
+    IF RadioGroup3.ItemIndex = 0 then
+    begin
+       IF RxDBLookupCombo2.KeyValue < 0 then
+       begin
+          ShowMessage('Informar o Cliente...');
+          RxDBLookupCombo2.SetFocus;
+          exit;
+       end;
+    end;
+    IF RadioGroup3.ItemIndex = 1 then
+    begin
+       IF RxDBLookupCombo4.KeyValue < 0 then
+       begin
+          ShowMessage('Informar o Fornecedor...');
+          RxDBLookupCombo4.SetFocus;
+          exit;
+       end;
+    end;
+    IF QryContas.State in [DSINsert] then
+    begin
+       for i := 0 to (QryContasQtdeParc.Value -1 )do
+       begin
+//////////////////
+          SPContas.Prepare;
+          with SPContas do
+          begin
+             ParamByname('@TIPOACAO_2').Value := QryContasTipoacao.Value;
+        			ParamByname('@DESCRICAO_3').Value := QryContasdescricao.Value;
+        			ParamByname('@QTDEPARC_4').Value := (QryContasqtdeparc.Value);
+        			ParamByname('@NUMPARC_5').Value := (QryContasNumParc.Value+i);
+             decodedate(Now,aa,mm,dd);
+	    	    	ParamByname('@DTEMISSAO_6').Value := encodedate(aa,mm,dd);
+         		 ParamByname('@DTVENC_7').Value := incmonth(DbDateEdit1.Date,i);
+    		    	ParamByname('@VLCALCULADO_8').Value := RxDBCalcEdit1.Value;
+    			   ParamByname('@VLDESCONTO_9').Value := 0;
+    		    	ParamByname('@VLFATURA_10').Value := RxDBCalcEdit1.Value;
+             IF RadioGroup3.ItemIndex = 0 then
+             begin
+           			ParamByname('@CODCLIENTE_11').Value := QryContascodcliente.Value;
+        	   		ParamByname('@CODFORN_12').Value := null;
+             end;
+             IF RadioGroup3.ItemIndex = 1 then
+             begin
+            			ParamByname('@CODCLIENTE_11').Value := null;
+            			ParamByname('@CODFORN_12').Value := QryContascodforn.Value;
+             end;
+    	    		ParamByname('@NDOCTIT_13').Value := QryContasndoctit.Value;
+    			   ParamByname('@ATIVO_14').Value := QryContasativo.Value;
+       			ParamByname('@CODBANCO_15').Value := QryContascodbanco.Value;
+	       		ParamByname('@TIPOCADASTRO_16').Value := 'M';
+    	  		ParamByname('@DESCR_17').Value := QryContasdescr.Value;
+       			ParamByname('@CODRespProf_18').Value := NULL;
+            ParamByname('@CODDESCONTO_19').Value := NULL;
+
+             execproc;
+           end;
+        end;
+    end;
+    IF QryContas.State in [DSEdit] then
+    begin
+       CodSeqContas := QryContasCodSeqContas.value;
+       QryContas.Post;
+       QryContas.ApplyUpdates;
+           QryEstorno.Close;
+           QryEstorno.ParamByName('CodSeqContas').Value := CodSeqContas;
+           QryEstorno.Active := True;
+           While not QryEstorno.Eof do
+           begin
+              SpEstorno.Prepare;
+              SPEstorno.ParamByName('@CodMovPedido_1').Value := QryEstornoCodMovPedido.Value;
+              SPEstorno.ParamByName('@CodSeqContas_2').Value := CodSeqContas;
+              SPEstorno.ParamByName('@Pago_3').Value := 'S';
+              SPEstorno.ExecProc;
+              QryEstorno.Next;
+           end;
+
+
+
+
+
+
+
+    end;
+    QryContas.Close;
+    PageControl1.ActivePage := TabSheet1;
+    Panel1.Enabled := True;
+    BbtnPesquisar.Click;
+
+end;
+
+procedure TFrmContas.btncancelarClick(Sender: TObject);
+begin
+    QryContas.Cancel;
+    QryContas.Close;
+    PageControl1.ActivePage := TabSheet1;
+    Panel1.Enabled := True;
+    BbtnPesquisar.Click;
+
+end;
+
+procedure TFrmContas.SBExcluirClick(Sender: TObject);
+var
+   CodSeqContas : Integer;
+begin
+   if ((QryContas.Eof) and (QryContas.RecNo = 0)) then
+      ShowMessage('Último Encontrado, Pesquise Novamente')
+  else
+     if Application.MessageBox('Deseja excluir ? ',
+         'Confirme', 4  + MB_ICONQUESTION)= idYes then
+     begin
+        try
+           CodSeqContas := QryContasCodSeqContas.Value;
+           QryContas.Delete;
+           QryContas.ApplyUpdates;
+           QryContas.Close;
+           QryContas.Active := true;
+           QryEstorno.Close;
+           QryEstorno.ParamByName('CodSeqContas').Value := CodSeqContas;
+           QryEstorno.Active := True;
+           While not QryEstorno.Eof do
+           begin
+              SpEstorno.Prepare;
+              SPEstorno.ParamByName('@CodMovPedido_1').Value := QryEstornoCodMovPedido.Value;
+              SPEstorno.ParamByName('@CodSeqContas_2').Value := null;
+              SPEstorno.ParamByName('@Pago_3').Value := null;
+              SPEstorno.ExecProc;
+              QryEstorno.Next;
+           end;
+        except
+           ShowMessage('Exclusão Proibida, Cadastro já Utilizado..');
+           QryContas.Close;
+           QryContas.Active := true;
+        end;
+     end;
+
+
+end;
+
+procedure TFrmContas.SBAlterarClick(Sender: TObject);
+begin
+   Panel1.Enabled := False;
+   PageControl1.ActivePage := TabSheet2;
+   QryContas.Edit;
+   Label15.Visible := False;
+   Label16.Visible := False;
+   DBDateEdit2.Visible := False;
+   RXDBCalcEdit3.Visible := False;
+
+   IF QryContasTipoCadastro.Value = 'A' then
+   begin
+      DBEdit1.Enabled := False;
+//      DBEdit2.Enabled := False;
+      RXDBCalcEdit2.Enabled := False;
+      DBComboBox1.Enabled := False;
+      RXDBCalcEdit1.Enabled := False;
+      RadioGroup3.Enabled := False;
+      IF RxDBLookupCombo4.KeyValue > 0 then
+      begin
+         RxDBLookupCombo4.Enabled := False;
+         RxDBLookupCombo4.Visible := True;
+         RxDBLookupCombo2.Visible := False;
+         Label5.Caption := 'Fornecedor';
+         RadioGroup3.ItemIndex := 1;
+      end;
+      IF RxDBLookupCombo2.KeyValue > 0 then
+      begin
+         RxDBLookupCombo2.Enabled := False;
+         RxDBLookupCombo2.Visible := True;
+         RxDBLookupCombo4.Visible := False;
+         Label5.Caption := 'Cliente';
+         RadioGroup3.ItemIndex := 0;
+      end;
+   end
+   else
+   begin
+      DBEdit1.Enabled := True;
+      DBEdit2.Enabled := True;
+      RXDBCalcEdit2.Enabled := False;
+      DBComboBox1.Enabled := False;
+      RXDBCalcEdit1.Enabled := True;
+      RadioGroup3.Enabled := True;
+      IF RxDBLookupCombo4.KeyValue > 0 then
+      begin
+         RxDBLookupCombo4.Enabled := True;
+         RxDBLookupCombo4.Visible := True;
+         RxDBLookupCombo2.Visible := False;
+         Label5.Caption := 'Fornecedor';
+         RadioGroup3.ItemIndex := 1;
+      end;
+      IF RxDBLookupCombo2.KeyValue > 0 then
+      begin
+         RxDBLookupCombo2.Enabled := True;
+         RxDBLookupCombo2.Visible := True;
+         RxDBLookupCombo4.Visible := False;
+         Label5.Caption := 'Cliente';
+         RadioGroup3.ItemIndex := 0;         
+      end;
+   end;
+end;
+
+procedure TFrmContas.SBPagaRecebeClick(Sender: TObject);
+var
+  aa,mm,dd : word;
+begin
+   Panel1.Enabled := False;
+   PageControl1.ActivePage := TabSheet2;
+   QryContas.Edit;
+   Decodedate(now,aa,mm,dd);
+   DBDateEdit2.Date := encodedate(aa,mm,dd);
+   QryContasdtpgto.Value := encodedate(aa,mm,dd);
+   RXDBCalcEdit3.Value := QryContasVlFatura.Value;
+   QryContasVlpgto.Value := QryContasVlFatura.Value;
+   Label15.Visible := True;
+   Label16.Visible := True;
+   DBDateEdit2.Visible := True;
+   RXDBCalcEdit3.Visible := True;
+
+   DBEdit1.Enabled := False;
+   DBEdit2.Enabled := True;
+   DbEdit12.Enabled := True;
+   RXDBCalcEdit2.Enabled := False;
+   DBComboBox1.Enabled := False;
+   RXDBCalcEdit1.Enabled := False;
+   RadioGroup3.Enabled := False;
+   IF RxDBLookupCombo4.KeyValue > 0 then
+   begin
+      RxDBLookupCombo4.Enabled := False;
+      RxDBLookupCombo4.Visible := True;
+      RxDBLookupCombo2.Visible := False;
+      Label5.Caption := 'Fornecedor';
+      RadioGroup3.ItemIndex := 1;
+   end;
+   IF RxDBLookupCombo2.KeyValue > 0 then
+   begin
+      RxDBLookupCombo2.Enabled := False;
+      RxDBLookupCombo2.Visible := True;
+      RxDBLookupCombo4.Visible := False;
+      Label5.Caption := 'Cliente';
+      RadioGroup3.ItemIndex := 0;
+   end;
+
+end;
+
+procedure TFrmContas.RadioGroup4Click(Sender: TObject);
+begin
+   if RadioGroup4.ItemIndex = 0 then
+   begin
+      RadioGroup1.Items.Clear;
+      RadioGroup1.Items.Add('Ambas');
+      RadioGroup1.Items.Add('Pagar');
+      RadioGroup1.Items.Add('Receber');
+      Label9.Caption := 'Pagar';
+      Label11.Caption := 'Receber';
+      Label10.Caption := 'Atradasa';
+      RadioGroup1.ItemIndex := 0;
+   end;
+   if RadioGroup4.ItemIndex = 1 then
+   begin
+      RadioGroup1.Items.Clear;
+      RadioGroup1.Items.Add('Ambas');
+      RadioGroup1.Items.Add('Pago');
+      RadioGroup1.Items.Add('Recebido');
+      Label9.Caption := 'Pago';
+      Label11.Caption := 'Recebido';
+      Label10.Caption := '---------';
+      RadioGroup1.ItemIndex := 0;
+   end;
+
+end;
+
+procedure TFrmContas.SBImprimirClick(Sender: TObject);
+begin
+     IF FrmRelContas = nil then
+       FrmRelContas  := TFrmRelContas.Create(Self);
+     if radiogroup4.ItemIndex = 1 then
+     begin
+        //// Calcula Saldo das Entradas
+        FrmRelContas.QrySaldoEntrada.Close;
+        FrmRelContas.QrySaldoEntrada.ParamByName('dt').Value := dti.Date;
+        FrmRelContas.QrySaldoEntrada.Active := True;
+        //// Calcula Saldo das Entradas
+        FrmRelContas.QrySaldoSaida.Close;
+        FrmRelContas.QrySaldoSaida.ParamByName('dt').Value := dti.Date;
+        FrmRelContas.QrySaldoSaida.Active := True;
+        //// Calcula das Entradas
+        FrmRelContas.QryEntrada.Close;
+        FrmRelContas.QryEntrada.ParamByName('dti').Value := dti.Date;
+        FrmRelContas.QryEntrada.ParamByName('dtf').Value := dtf.Date;
+        FrmRelContas.QryEntrada.Active := True;
+        //// Calcula das Entradas
+        FrmRelContas.QrySaida.Close;
+        FrmRelContas.QrySaida.ParamByName('dti').Value := dti.Date;
+        FrmRelContas.QrySaida.ParamByName('dtf').Value := dtf.Date;
+        FrmRelContas.QrySaida.Active := True;
+
+        //////////////////
+     end;
+     if radiogroup4.ItemIndex = 0 then
+     begin
+        //// Calcula Saldo das Entradas
+        FrmRelContas.QrySaldoEntrada.Close;
+        FrmRelContas.QrySaldoEntrada.ParamByName('dt').Value := dtf.Date;
+        FrmRelContas.QrySaldoEntrada.Active := True;
+        //// Calcula Saldo das Saida
+        FrmRelContas.QrySaldoSaida.Close;
+        FrmRelContas.QrySaldoSaida.ParamByName('dt').Value := dtf.Date;
+        FrmRelContas.QrySaldoSaida.Active := True;
+        //////////////////  Calculo Entrada
+        FrmRelContas.QryEntrada.Close;
+        FrmRelContas.QryEntrada.ParamByName('dti').Value := dtf.Date;
+        FrmRelContas.QryEntrada.ParamByName('dtf').Value := dtf.Date;
+        FrmRelContas.QryEntrada.Active := True;
+        //// Calcula das Saida
+        FrmRelContas.QrySaida.Close;
+        FrmRelContas.QrySaida.ParamByName('dti').Value := dtf.Date;
+        FrmRelContas.QrySaida.ParamByName('dtf').Value := dtf.Date;
+        FrmRelContas.QrySaida.Active := True;
+     end;
+
+     if RadioGroup4.ItemIndex = 0 then
+     begin
+        IF RadioGroup1.ItemIndex = 0 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas a Receber e Pagar';
+           FrmRelContas.QRLabel6.Caption := 'Receber';
+           FrmRelContas.QRLabel7.Caption := 'Pagar';
+
+        end;
+        IF RadioGroup1.ItemIndex = 1 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas a Receber';
+           FrmRelContas.QRLabel6.Caption := 'Receber';
+           FrmRelContas.QRLabel7.Caption := '';
+
+        end;
+        IF RadioGroup1.ItemIndex = 2 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas a Pagar';
+           FrmRelContas.QRLabel6.Caption := '';
+           FrmRelContas.QRLabel7.Caption := 'Pagar';
+
+        end;
+     end;
+
+     if RadioGroup4.ItemIndex = 1 then
+     begin
+        IF RadioGroup1.ItemIndex = 0 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas Recebidos e Pagos';
+           FrmRelContas.QRLabel6.Caption := 'Recebido';
+           FrmRelContas.QRLabel7.Caption := 'Pago';
+
+        end;
+        IF RadioGroup1.ItemIndex = 1 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas Recebidos';
+           FrmRelContas.QRLabel6.Caption := 'Recebido';
+           FrmRelContas.QRLabel7.Caption := '';
+
+        end;
+        IF RadioGroup1.ItemIndex = 2 then
+        begin
+           FrmRelContas.QRLabel3.Caption := 'Relatório de Gestão Financeira do Contas Pagos';
+           FrmRelContas.QRLabel6.Caption := '';
+           FrmRelContas.QRLabel7.Caption := 'Pago';
+
+        end;
+     end;
+     FrmRelCOntas.QuickRep1.Preview;
+     FrmRelContas.Close;
+
+
+
+end;
+
+procedure TFrmContas.SBCancelaPgtoClick(Sender: TObject);
+begin
+   if ((QryContas.Eof) and (QryContas.RecNo = 0)) then
+      ShowMessage('Último Encontrado, Pesquise Novamente')
+  else
+     if Application.MessageBox('Deseja Cancelar Pgto ou Recebimento ? ',
+         'Confirme', 4  + MB_ICONQUESTION)= idYes then
+     begin
+        QryContas.Edit;
+        QryContasVlpgto.Clear;
+        QryContasDtPgto.Clear;
+        QryContas.Post;
+        QryContas.ApplyUpdates;
+        BbtnPesquisar.Click;
+        ShowMessage('O Pagamento ou Recebimento foi cancelado e retornou para Agendada.');
+     end;   
+end;
+
+end.

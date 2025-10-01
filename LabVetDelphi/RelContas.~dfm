@@ -1,0 +1,1354 @@
+object FrmRelContas: TFrmRelContas
+  Left = 72
+  Top = 126
+  Width = 858
+  Height = 544
+  Caption = 'Relat'#243'rio de Contas'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  Scaled = False
+  OnClose = FormClose
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object QuickRep1: TQuickRep
+    Left = 40
+    Top = 30
+    Width = 1056
+    Height = 816
+    Frame.Color = clBlack
+    Frame.DrawTop = False
+    Frame.DrawBottom = False
+    Frame.DrawLeft = False
+    Frame.DrawRight = False
+    DataSet = FrmContas.QryContas
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Arial'
+    Font.Style = []
+    Functions.Strings = (
+      'PAGENUMBER'
+      'COLUMNNUMBER'
+      'REPORTTITLE')
+    Functions.DATA = (
+      '0'
+      '0'
+      #39#39)
+    Options = [FirstPageHeader, LastPageFooter]
+    Page.Columns = 1
+    Page.Orientation = poLandscape
+    Page.PaperSize = Letter
+    Page.Values = (
+      100.000000000000000000
+      2159.000000000000000000
+      100.000000000000000000
+      2794.000000000000000000
+      100.000000000000000000
+      100.000000000000000000
+      0.000000000000000000)
+    PrinterSettings.Copies = 1
+    PrinterSettings.Duplex = False
+    PrinterSettings.FirstPage = 0
+    PrinterSettings.LastPage = 0
+    PrinterSettings.OutputBin = Auto
+    PrintIfEmpty = True
+    SnapToGrid = True
+    Units = MM
+    Zoom = 100
+    object PageHeader: TQRBand
+      Left = 38
+      Top = 38
+      Width = 980
+      Height = 146
+      Frame.Color = clBlack
+      Frame.DrawTop = False
+      Frame.DrawBottom = True
+      Frame.DrawLeft = False
+      Frame.DrawRight = False
+      AlignToBottom = False
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        386.291666666666700000
+        2592.916666666667000000)
+      BandType = rbPageHeader
+      object QRLabel3: TQRLabel
+        Left = 482
+        Top = 117
+        Width = 16
+        Height = 20
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          52.916666666666670000
+          1275.291666666667000000
+          309.562500000000000000
+          42.333333333333340000)
+        Alignment = taCenter
+        AlignToBand = True
+        AutoSize = True
+        AutoStretch = False
+        Caption = '---'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clGreen
+        Font.Height = -16
+        Font.Name = 'Arial'
+        Font.Style = [fsBold, fsUnderline]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 12
+      end
+      object QRDBImageEsquerda: TQRDBImage
+        Left = 16
+        Top = 8
+        Width = 100
+        Height = 87
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          230.187500000000000000
+          42.333333333333340000
+          21.166666666666670000
+          264.583333333333400000)
+        DataField = 'Imagem'
+        DataSet = DMLABVET.QryEmpresa
+        Stretch = True
+      end
+      object QRDBText6: TQRDBText
+        Left = 128
+        Top = 31
+        Width = 377
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          338.666666666666700000
+          82.020833333333320000
+          997.479166666666800000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'Endereco'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText17: TQRDBText
+        Left = 128
+        Top = 50
+        Width = 281
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          338.666666666666700000
+          132.291666666666700000
+          743.479166666666800000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'Cidade'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText22: TQRDBText
+        Left = 128
+        Top = 71
+        Width = 193
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          338.666666666666700000
+          187.854166666666700000
+          510.645833333333300000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'CNPJ'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText24: TQRDBText
+        Left = 128
+        Top = 90
+        Width = 393
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          338.666666666666700000
+          238.125000000000000000
+          1039.812500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'email'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText23: TQRDBText
+        Left = 328
+        Top = 71
+        Width = 393
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          867.833333333333200000
+          187.854166666666700000
+          1039.812500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'site'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText18: TQRDBText
+        Left = 416
+        Top = 50
+        Width = 33
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1100.666666666667000000
+          132.291666666666700000
+          87.312500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'UF'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText21: TQRDBText
+        Left = 464
+        Top = 49
+        Width = 129
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1227.666666666667000000
+          129.645833333333300000
+          341.312500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'CEP'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText16: TQRDBText
+        Left = 512
+        Top = 31
+        Width = 209
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1354.666666666667000000
+          82.020833333333320000
+          552.979166666666700000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'Bairro'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+      object QRDBText5: TQRDBText
+        Left = 441
+        Top = 1
+        Width = 98
+        Height = 30
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          79.375000000000000000
+          1166.812500000000000000
+          2.645833333333333000
+          259.291666666666700000)
+        Alignment = taCenter
+        AlignToBand = True
+        AutoSize = True
+        AutoStretch = False
+        Color = clWhite
+        DataSet = DMLABVET.QryEmpresa
+        DataField = 'Fantasia'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clGreen
+        Font.Height = -24
+        Font.Name = 'Arial'
+        Font.Style = [fsBold, fsItalic]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 18
+      end
+      object PageNumber: TQRSysData
+        Left = 893
+        Top = 123
+        Width = 81
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          2362.729166666667000000
+          325.437500000000000000
+          214.312500000000000000)
+        Alignment = taRightJustify
+        AlignToBand = False
+        AutoSize = False
+        Color = clWhite
+        Data = qrsPageNumber
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Text = 'P'#225'gina :  '
+        Transparent = False
+        FontSize = 10
+      end
+      object QRDateTime: TQRSysData
+        Left = 731
+        Top = 124
+        Width = 160
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1934.104166666667000000
+          328.083333333333300000
+          423.333333333333300000)
+        Alignment = taCenter
+        AlignToBand = False
+        AutoSize = False
+        Color = clWhite
+        Data = qrsDateTime
+        Text = 'Impresso em :'
+        Transparent = False
+        FontSize = 10
+      end
+    end
+    object ColumnHeaderBand1: TQRBand
+      Left = 38
+      Top = 184
+      Width = 980
+      Height = 26
+      Frame.Color = clBlack
+      Frame.DrawTop = True
+      Frame.DrawBottom = True
+      Frame.DrawLeft = False
+      Frame.DrawRight = False
+      AlignToBottom = False
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        68.791666666666670000
+        2592.916666666667000000)
+      BandType = rbColumnHeader
+      object QRLabel4: TQRLabel
+        Left = 3
+        Top = 4
+        Width = 70
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          7.937500000000000000
+          10.583333333333330000
+          185.208333333333300000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel2: TQRLabel
+        Left = 77
+        Top = 4
+        Width = 84
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          203.729166666666700000
+          10.583333333333330000
+          222.250000000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Pago/Recebido'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel1: TQRLabel
+        Left = 165
+        Top = 4
+        Width = 276
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          436.562500000000000000
+          10.583333333333330000
+          730.250000000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Cliente / Fornecedor'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel5: TQRLabel
+        Left = 445
+        Top = 4
+        Width = 276
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1177.395833333333000000
+          10.583333333333330000
+          730.250000000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Descri'#231#227'o'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel6: TQRLabel
+        Left = 725
+        Top = 4
+        Width = 127
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1918.229166666667000000
+          10.583333333333330000
+          336.020833333333300000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Receber / Recebido'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel7: TQRLabel
+        Left = 856
+        Top = 4
+        Width = 121
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          2264.833333333333000000
+          10.583333333333330000
+          320.145833333333300000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Pagar / Pago'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+    end
+    object QRBand1: TQRBand
+      Left = 38
+      Top = 210
+      Width = 980
+      Height = 23
+      Frame.Color = clBlack
+      Frame.DrawTop = False
+      Frame.DrawBottom = True
+      Frame.DrawLeft = False
+      Frame.DrawRight = False
+      AlignToBottom = False
+      BeforePrint = QRBand1BeforePrint
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        60.854166666666670000
+        2592.916666666667000000)
+      BandType = rbDetail
+      object QRDBText1: TQRDBText
+        Left = 4
+        Top = 2
+        Width = 69
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.687500000000000000
+          10.583333333333330000
+          5.291666666666667000
+          182.562500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = FrmContas.QryContas
+        DataField = 'DTVENC'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRDBText2: TQRDBText
+        Left = 78
+        Top = 2
+        Width = 83
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.687500000000000000
+          206.375000000000000000
+          5.291666666666667000
+          219.604166666666700000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = FrmContas.QryContas
+        DataField = 'DTPGTO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRDBText4: TQRDBText
+        Left = 445
+        Top = 2
+        Width = 275
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.687500000000000000
+          1177.395833333333000000
+          5.291666666666667000
+          727.604166666666800000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = FrmContas.QryContas
+        DataField = 'DESCRICAO'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel10: TQRLabel
+        Left = 165
+        Top = 1
+        Width = 276
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          436.562500000000000000
+          2.645833333333333000
+          730.250000000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Cliente / Fornecedor'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel11: TQRLabel
+        Left = 858
+        Top = 2
+        Width = 105
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.687500000000000000
+          2270.125000000000000000
+          5.291666666666667000
+          277.812500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel12: TQRLabel
+        Left = 730
+        Top = 2
+        Width = 107
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.687500000000000000
+          1931.458333333333000000
+          5.291666666666667000
+          283.104166666666700000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlue
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+    end
+    object PageFooter: TQRBand
+      Left = 38
+      Top = 233
+      Width = 980
+      Height = 48
+      Frame.Color = clBlack
+      Frame.DrawTop = True
+      Frame.DrawBottom = True
+      Frame.DrawLeft = True
+      Frame.DrawRight = True
+      AfterPrint = PageFooterAfterPrint
+      AlignToBottom = False
+      BeforePrint = PageFooterBeforePrint
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        127.000000000000000000
+        2592.916666666667000000)
+      BandType = rbSummary
+      object QRLabel8: TQRLabel
+        Left = 730
+        Top = 4
+        Width = 108
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1931.458333333333000000
+          10.583333333333330000
+          285.750000000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlue
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel9: TQRLabel
+        Left = 858
+        Top = 4
+        Width = 106
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          2270.125000000000000000
+          10.583333333333330000
+          280.458333333333300000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clRed
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel13: TQRLabel
+        Left = 498
+        Top = 4
+        Width = 207
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1317.625000000000000000
+          10.583333333333330000
+          547.687500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Vencimento'
+        Color = clWhite
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clBlue
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRMemo1: TQRMemo
+        Left = 8
+        Top = 24
+        Width = 57
+        Height = 18
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          47.625000000000000000
+          21.166666666666670000
+          63.500000000000000000
+          150.812500000000000000)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = True
+        AutoStretch = True
+        Color = clWhite
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = [fsItalic]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 10
+      end
+    end
+  end
+  object QrySaldoEntrada: TQuery
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'SELECT e.CODBANCO,  b.NomeBanco, b.numconta,'
+      'SUM(e.recebido) as VLRecebido'
+      ''
+      'FROM         V_SALDOENTRADA e'
+      
+        '                    inner join banco b on e.codbanco = b.codbanc' +
+        'o'
+      'WHERE     '
+      'e.dtpgto < :dt'
+      'group by e.CODBANCO, b.NomeBanco, b.numconta  ')
+    Left = 88
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dt'
+        ParamType = ptInput
+      end>
+    object QrySaldoEntradaCODBANCO: TIntegerField
+      FieldName = 'CODBANCO'
+    end
+    object QrySaldoEntradaNomeBanco: TStringField
+      FieldName = 'NomeBanco'
+      FixedChar = True
+      Size = 50
+    end
+    object QrySaldoEntradanumconta: TStringField
+      FieldName = 'numconta'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaldoEntradaVLRecebido: TFloatField
+      FieldName = 'VLRecebido'
+      currency = True
+    end
+  end
+  object QrySaldoSaida: TQuery
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'SELECT e.CODBANCO,  b.NomeBanco, b.numconta,'
+      'SUM(e.pago) as VLpago'
+      ''
+      'FROM         V_SALDOSAIDA e'
+      
+        '                    inner join banco b on e.codbanco = b.codbanc' +
+        'o'
+      'WHERE     '
+      'e.dtpgto < :dt'
+      'group by e.CODBANCO, b.NomeBanco, b.numconta  ')
+    Left = 160
+    Top = 8
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dt'
+        ParamType = ptInput
+      end>
+    object QrySaldoSaidaCODBANCO: TIntegerField
+      FieldName = 'CODBANCO'
+    end
+    object QrySaldoSaidaNomeBanco: TStringField
+      FieldName = 'NomeBanco'
+      FixedChar = True
+      Size = 50
+    end
+    object QrySaldoSaidanumconta: TStringField
+      FieldName = 'numconta'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaldoSaidaVLpago: TFloatField
+      FieldName = 'VLpago'
+      currency = True
+    end
+  end
+  object QrySaldo: TQuery
+    CachedUpdates = True
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'Select *'
+      'From Saldo s inner join banco b on s.codbanco = b.codbanco')
+    UpdateObject = UpdateSQL1
+    Left = 232
+    Top = 8
+    object QrySaldoCODBANCO: TIntegerField
+      FieldName = 'CODBANCO'
+      Origin = 'DNLABVET.Saldo.CODBANCO'
+    end
+    object QrySaldoENTRADA2: TFloatField
+      FieldName = 'ENTRADA'
+      Origin = 'DNLABVET.Saldo.ENTRADA'
+      currency = True
+    end
+    object QrySaldoSAIDA2: TFloatField
+      FieldName = 'SAIDA'
+      Origin = 'DNLABVET.Saldo.SAIDA'
+      currency = True
+    end
+    object QrySaldoRECEBIDO: TFloatField
+      FieldName = 'RECEBIDO'
+      Origin = 'DNLABVET.Saldo.RECEBIDO'
+      currency = True
+    end
+    object QrySaldoPAGO: TFloatField
+      FieldName = 'PAGO'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      currency = True
+    end
+    object QrySaldoCODBANCO_1: TAutoIncField
+      FieldName = 'CODBANCO_1'
+      Origin = 'DNLABVET.Saldo.PAGO'
+    end
+    object QrySaldoNUMBANCO: TStringField
+      FieldName = 'NUMBANCO'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaldoNOMEBANCO: TStringField
+      FieldName = 'NOMEBANCO'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 50
+    end
+    object QrySaldoNUMAGENCIA: TStringField
+      FieldName = 'NUMAGENCIA'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaldoNOMEAGENCIA: TStringField
+      FieldName = 'NOMEAGENCIA'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 50
+    end
+    object QrySaldoNUMCONTA: TStringField
+      FieldName = 'NUMCONTA'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaldoATIVO: TStringField
+      FieldName = 'ATIVO'
+      Origin = 'DNLABVET.Saldo.PAGO'
+      FixedChar = True
+      Size = 1
+    end
+  end
+  object UpdateSQL1: TUpdateSQL
+    ModifySQL.Strings = (
+      'update Saldo'
+      'set'
+      '  CODBANCO = :CODBANCO,'
+      '  ENTRADA = :ENTRADA,'
+      '  SAIDA = :SAIDA,'
+      '  RECEBIDO = :RECEBIDO,'
+      '  PAGO = :PAGO,'
+      '  NOMEBANCO = :NOMEBANCO,'
+      '  NUMCONTA = :NUMCONTA'
+      'where'
+      '  CODBANCO = :OLD_CODBANCO')
+    InsertSQL.Strings = (
+      'insert into Saldo'
+      
+        '  (CODBANCO, ENTRADA, SAIDA, RECEBIDO, PAGO, NOMEBANCO, NUMCONTA' +
+        ')'
+      'values'
+      
+        '  (:CODBANCO, :ENTRADA, :SAIDA, :RECEBIDO, :PAGO, :NOMEBANCO, :N' +
+        'UMCONTA)')
+    DeleteSQL.Strings = (
+      'delete from Saldo'
+      'where'
+      '  CODBANCO = :OLD_CODBANCO')
+    Left = 272
+    Top = 30
+  end
+  object QryBanco: TQuery
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'SELECT *'
+      ''
+      'FROM banco'
+      'WHERE     '
+      'ativo = '#39'S'#39)
+    Left = 320
+    Top = 8
+    object QryBancoCODBANCO: TAutoIncField
+      FieldName = 'CODBANCO'
+      Origin = 'DNLABVET.banco.CODBANCO'
+    end
+    object QryBancoNUMBANCO: TStringField
+      FieldName = 'NUMBANCO'
+      Origin = 'DNLABVET.banco.NUMBANCO'
+      FixedChar = True
+      Size = 10
+    end
+    object QryBancoNOMEBANCO: TStringField
+      FieldName = 'NOMEBANCO'
+      Origin = 'DNLABVET.banco.NOMEBANCO'
+      FixedChar = True
+      Size = 50
+    end
+    object QryBancoNUMAGENCIA: TStringField
+      FieldName = 'NUMAGENCIA'
+      Origin = 'DNLABVET.banco.NUMAGENCIA'
+      FixedChar = True
+      Size = 10
+    end
+    object QryBancoNOMEAGENCIA: TStringField
+      FieldName = 'NOMEAGENCIA'
+      Origin = 'DNLABVET.banco.NOMEAGENCIA'
+      FixedChar = True
+      Size = 50
+    end
+    object QryBancoNUMCONTA: TStringField
+      FieldName = 'NUMCONTA'
+      Origin = 'DNLABVET.banco.NUMCONTA'
+      FixedChar = True
+      Size = 10
+    end
+    object QryBancoATIVO: TStringField
+      FieldName = 'ATIVO'
+      Origin = 'DNLABVET.banco.ATIVO'
+      FixedChar = True
+      Size = 1
+    end
+  end
+  object QryEntrada: TQuery
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'SELECT e.CODBANCO,  b.NomeBanco, b.numconta,'
+      'SUM(e.recebido) as VLRecebido'
+      ''
+      'FROM         V_SALDOENTRADA e'
+      
+        '                    inner join banco b on e.codbanco = b.codbanc' +
+        'o'
+      'WHERE     '
+      'e.dtpgto between :dti and :dtf'
+      'group by e.CODBANCO, b.NomeBanco, b.numconta  ')
+    Left = 88
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dti'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftDate
+        Name = 'dtf'
+        ParamType = ptInput
+      end>
+    object QryEntradaCODBANCO: TIntegerField
+      FieldName = 'CODBANCO'
+    end
+    object QryEntradaNomeBanco: TStringField
+      FieldName = 'NomeBanco'
+      FixedChar = True
+      Size = 50
+    end
+    object QryEntradanumconta: TStringField
+      FieldName = 'numconta'
+      FixedChar = True
+      Size = 10
+    end
+    object QryEntradaVLRecebido: TFloatField
+      FieldName = 'VLRecebido'
+      currency = True
+    end
+  end
+  object QrySaida: TQuery
+    DatabaseName = 'DNLABVET'
+    SQL.Strings = (
+      'SELECT e.CODBANCO,  b.NomeBanco, b.numconta,'
+      'SUM(e.pago) as VLpago'
+      ''
+      'FROM         V_SALDOSAIDA e'
+      
+        '                    inner join banco b on e.codbanco = b.codbanc' +
+        'o'
+      'WHERE     '
+      'e.dtpgto between :dti and :dtf'
+      'group by e.CODBANCO, b.NomeBanco, b.numconta  ')
+    Left = 160
+    Top = 40
+    ParamData = <
+      item
+        DataType = ftDate
+        Name = 'dti'
+        ParamType = ptInput
+      end
+      item
+        DataType = ftDate
+        Name = 'dtf'
+        ParamType = ptInput
+      end>
+    object QrySaidaCODBANCO: TIntegerField
+      FieldName = 'CODBANCO'
+    end
+    object QrySaidaNomeBanco: TStringField
+      FieldName = 'NomeBanco'
+      FixedChar = True
+      Size = 50
+    end
+    object QrySaidanumconta: TStringField
+      FieldName = 'numconta'
+      FixedChar = True
+      Size = 10
+    end
+    object QrySaidaVLpago: TFloatField
+      FieldName = 'VLpago'
+      currency = True
+    end
+  end
+end

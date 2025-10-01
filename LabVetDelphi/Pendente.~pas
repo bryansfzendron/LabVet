@@ -1,0 +1,174 @@
+unit Pendente;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Grids, DBGrids, Buttons, ExtCtrls, DB, DBTables, StdCtrls;
+
+type
+  TFrmPendentes = class(TForm)
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Panel1: TPanel;
+    Panel4: TPanel;
+    DBGrid1: TDBGrid;
+    DBGrid2: TDBGrid;
+    QryPedidos: TQuery;
+    QryMovExames: TQuery;
+    DSPedido: TDataSource;
+    DSExames: TDataSource;
+    QryPedidosCodMovPedido: TAutoIncField;
+    QryPedidosCodigoInterno: TStringField;
+    QryPedidosCodigoPedido: TIntegerField;
+    QryPedidosSenha: TStringField;
+    QryPedidosCodCliente: TIntegerField;
+    QryPedidosCodEspecie: TIntegerField;
+    QryPedidosCodProfSolic: TIntegerField;
+    QryPedidosCodProfLaudo: TIntegerField;
+    QryPedidosAssinaturaScanner: TStringField;
+    QryPedidosDataPedido: TDateTimeField;
+    QryPedidosHoraPedido: TStringField;
+    QryPedidosDataEnvio: TDateTimeField;
+    QryPedidosValorTotal: TFloatField;
+    QryPedidosPago: TStringField;
+    QryPedidosFormadeEnvio: TStringField;
+    QryPedidosRetirar: TStringField;
+    QryPedidosRetirado: TStringField;
+    QryPedidosContato: TStringField;
+    QryPedidosStatus: TStringField;
+    QryPedidosCodSeqContas: TIntegerField;
+    QryPedidosNomeAnimal: TStringField;
+    QryPedidosProprietario: TStringField;
+    QryPedidosIdade: TStringField;
+    QryPedidosSexoAnimal: TStringField;
+    QryPedidosDataLiberacao: TDateTimeField;
+    QryPedidosClinica: TStringField;
+    QryMovExamesCodMovExames: TAutoIncField;
+    QryMovExamesCodMovPedido: TIntegerField;
+    QryMovExamesCodExame: TIntegerField;
+    QryMovExamesDataProvResultado: TDateTimeField;
+    QryMovExamesDataResultado: TDateTimeField;
+    QryMovExamesValor: TFloatField;
+    QryMovExamesObservacao: TMemoField;
+    QryMovExamesCodEspecie: TIntegerField;
+    QryMovExamesNomeExame: TStringField;
+    QryMovExamesNomeExameReduz: TStringField;
+    QryMovExamesDias_Elaboracao_Exame: TIntegerField;
+    QryMovExamesImprimirSeparado: TStringField;
+    QryMovExamesMetodo: TStringField;
+    QryMovExamesMaterial: TStringField;
+    QryMovExamesLiberado: TStringField;
+    SBFechar: TSpeedButton;
+    SBImprimir: TSpeedButton;
+    GroupBox3: TGroupBox;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure SBFecharClick(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure DBGrid2CellClick(Column: TColumn);
+    procedure DBGrid2DrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure SBImprimirClick(Sender: TObject);
+    procedure QryMovExamesLiberadoGetText(Sender: TField; var Text: String;
+      DisplayText: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmPendentes: TFrmPendentes;
+
+implementation
+
+uses RelPendentes;
+
+{$R *.dfm}
+
+procedure TFrmPendentes.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+    Release;
+    FrmPendentes := nil;
+end;
+
+procedure TFrmPendentes.SBFecharClick(Sender: TObject);
+begin
+   close;
+end;
+
+procedure TFrmPendentes.SpeedButton3Click(Sender: TObject);
+begin
+   Close;
+end;
+
+procedure TFrmPendentes.FormActivate(Sender: TObject);
+begin
+   QryMovExames.Close;
+   QryMovExames.Active := True;
+   QryPedidos.Close;
+   QryPedidos.Active := True;
+end;
+
+procedure TFrmPendentes.DBGrid2CellClick(Column: TColumn);
+begin
+    DBGrid1.Canvas.Brush.Color:= clBlue;
+    DBGrid2.Canvas.Brush.Color:= clBlue;
+end;
+
+procedure TFrmPendentes.DBGrid2DrawColumnCell(Sender: TObject;
+  const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+begin
+    if QryMovExamesLiberado.Value = 'S' then
+      //Azul
+         DBGrid2.Canvas.Brush.Color:= $00FFE29F
+    else
+       DBGrid2.Canvas.Brush.Color:= clInfoBk;//$0083F7FA;
+    if ((QryMovExamesLiberado.value <> 'S') and (QryMovExamesDataProvResultado.value < now))  then
+       DBGrid2.Canvas.Brush.Color:= clred;
+
+   {if DM_AgendaPaciente.qryTipoConsulta.Value = 'U' then
+      DBGrid.Canvas.Font.Color :=clRed;
+   {else
+      if DM_AgendaPaciente.qryTipoConsulta.Value = 'R' then
+        DBGrid.Canvas.Font.Color :=$00C0CFB1
+     else DBGrid.Canvas.Font.Color :=$004A46F7;}
+
+
+DBGrid2.Canvas.Font.Color:= clWindowText;
+DBGrid2.Canvas.FillRect(Rect);
+DBGrid2.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
+//verde $00C0CFB1
+//rosa $008885FA
+//vermelho $004A46F7                     //amarelo $0083F7FA
+
+
+end;
+
+procedure TFrmPendentes.SBImprimirClick(Sender: TObject);
+begin
+     IF FrmRelPendentes = nil then
+       FrmRelPendentes  := TFrmRelPendentes.Create(Self);
+     FrmRelPendentes.QuickRep1.Preview;
+     FrmRelPendentes.Close;
+
+end;
+
+procedure TFrmPendentes.QryMovExamesLiberadoGetText(Sender: TField;
+  var Text: String; DisplayText: Boolean);
+begin
+   IF QryMovExamesLiberado.Value = 'S' then
+      Value := 'Sim'
+   else
+      Value := 'Não';
+
+end;
+
+end.

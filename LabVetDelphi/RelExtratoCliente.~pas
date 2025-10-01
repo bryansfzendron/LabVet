@@ -1,0 +1,59 @@
+unit RelExtratoCliente;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, QRCtrls, QuickRpt, ExtCtrls;
+
+type
+  TForm1 = class(TForm)
+    QuickRep1: TQuickRep;
+    PageHeader: TQRBand;
+    QRLabel3: TQRLabel;
+    QRDBImageEsquerda: TQRDBImage;
+    QRDBText6: TQRDBText;
+    QRDBText17: TQRDBText;
+    QRDBText22: TQRDBText;
+    QRDBText24: TQRDBText;
+    QRDBText23: TQRDBText;
+    QRDBText18: TQRDBText;
+    QRDBText21: TQRDBText;
+    QRDBText16: TQRDBText;
+    QRDBText20: TQRDBText;
+    QRDBText19: TQRDBText;
+    QRDBText5: TQRDBText;
+    ColumnHeaderBand1: TQRBand;
+    QRLabel5: TQRLabel;
+    QRLabel6: TQRLabel;
+    QRBand1: TQRBand;
+    QRDBText3: TQRDBText;
+    QRDBText4: TQRDBText;
+    PageFooter: TQRBand;
+    QRDateTime: TQRSysData;
+    QRLabel7: TQRLabel;
+    procedure PageFooterBeforePrint(Sender: TQRCustomBand;
+      var PrintBand: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+uses DM_LABVET, ExtratoPedidos;
+
+{$R *.dfm}
+
+procedure TForm1.PageFooterBeforePrint(Sender: TQRCustomBand;
+  var PrintBand: Boolean);
+begin
+    Qrlabel7.Caption := 'Total.: '+FrmExtratoPedido.StatusBar1.Panels[1].Text;
+
+end;
+
+end.

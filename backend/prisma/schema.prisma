@@ -1,0 +1,435 @@
+// Schema do banco de dados LabVet
+// Baseado na migração do sistema Delphi legado
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================================
+// TABELAS DE CONFIGURAÇÃO
+// ================================
+
+model Empresa {
+  id          Int      @id @default(autoincrement())
+  razaoSocial String   @map("razao_social") @db.VarChar(100)
+  nomeFantasia String? @map("nome_fantasia") @db.VarChar(100)
+  cnpj        String?  @unique @db.VarChar(18)
+  inscricaoEstadual String? @map("inscricao_estadual") @db.VarChar(20)
+  endereco    String?  @db.VarChar(200)
+  cidade      String?  @db.VarChar(50)
+  uf          String?  @db.VarChar(2)
+  cep         String?  @db.VarChar(10)
+  telefone    String?  @db.VarChar(20)
+  email       String?  @db.VarChar(100)
+  logo        String?  @db.Text
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("empresas")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(100)
+  senha     String   @db.VarChar(255)
+  perfil    PerfilUsuario @default(OPERADOR)
+  ativo     Boolean  @default(true)
+  ultimoLogin DateTime? @map("ultimo_login")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  pedidosCriados Pedido[] @relation("PedidoCriador")
+  laudosLiberados Laudo[] @relation("LaudoLiberador")
+
+  @@map("usuarios")
+}
+
+enum PerfilUsuario {
+  ADMIN
+  GERENTE
+  VETERINARIO
+  TECNICO
+  OPERADOR
+}
+
+// ================================
+// TABELAS DE CADASTRO
+// ================================
+
+model Conselho {
+  id        Int      @id @default(autoincrement())
+  nome      String   @db.VarChar(50)
+  sigla     String   @unique @db.VarChar(10)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  profissionais Profissional[]
+
+  @@map("conselhos")
+}
+
+model Profissional {
+  id          Int      @id @default(autoincrement())
+  nome        String   @db.VarChar(100)
+  documento   String?  @db.VarChar(20)
+  registro    String?  @db.VarChar(20)
+  conselhoId  Int?     @map("conselho_id")
+  telefone    String?  @db.VarChar(20)
+  email       String?  @db.VarChar(100)
+  endereco    String?  @db.VarChar(200)
+  cidade      String?  @db.VarChar(50)
+  uf          String?  @db.VarChar(2)
+  cep         String?  @db.VarChar(10)
+  tipo        TipoProfissional
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  conselho    Conselho? @relation(fields: [conselhoId], references: [id])
+  pedidosSolicitados Pedido[] @relation("PedidoSolicitante")
+  laudosAssinados Laudo[] @relation("LaudoAssinante")
+  clientesResponsavel Cliente[]
+
+  @@map("profissionais")
+}
+
+enum TipoProfissional {
+  SOLICITANTE
+  INTERNO
+  AMBOS
+}
+
+model Cliente {
+  id               Int      @id @default(autoincrement()) @map("cod_cliente")
+  nome             String   @db.VarChar(50)
+  endereco         String?  @db.VarChar(40)
+  numero           String?  @db.VarChar(50)
+  complemento      String?  @map("compl") @db.VarChar(50)
+  bairro           String?  @db.VarChar(30)
+  cep              String?  @db.VarChar(9)
+  cidade           String?  @db.VarChar(30)
+  uf               String?  @db.VarChar(2)
+  telefone         String?  @db.VarChar(13)
+  fax              String?  @db.VarChar(13)
+  celular          String?  @db.VarChar(13)
+  email            String?  @db.VarChar(200)
+  cpfCnpj          String?  @map("cpf_cgc") @db.VarChar(18)
+  contato          String?  @db.VarChar(15)
+  dataCadastro     DateTime @default(now()) @map("data_cadastro")
+  restricao        String?  @db.VarChar(1) @default("N")
+  dataAtualizacao  DateTime? @map("data_atualizacao")
+  ativo            String   @db.VarChar(1) @default("S")
+  codVetResp       Int?     @map("cod_vet_resp")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  animais          Animal[]
+  pedidos          Pedido[]
+  veterinarioResp  Profissional? @relation(fields: [codVetResp], references: [id])
+
+  @@map("clientes")
+}
+
+model Especie {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique @db.VarChar(50)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  animais   Animal[]
+
+  @@map("especies")
+}
+
+model Animal {
+  id          Int      @id @default(autoincrement())
+  nome        String   @db.VarChar(100)
+  especieId   Int      @map("especie_id")
+  raca        String?  @db.VarChar(50)
+  sexo        SexoAnimal
+  idade       String?  @db.VarChar(20)
+  peso        Decimal? @db.Decimal(5,2)
+  cor         String?  @db.VarChar(30)
+  clienteId   Int      @map("cliente_id")
+  observacoes String?  @db.Text
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  especie     Especie  @relation(fields: [especieId], references: [id])
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  pedidos     Pedido[]
+
+  @@map("animais")
+}
+
+enum SexoAnimal {
+  MACHO
+  FEMEA
+  INDEFINIDO
+}
+
+model Exame {
+  id          Int      @id @default(autoincrement())
+  codigo      String   @unique @db.VarChar(20)
+  nome        String   @db.VarChar(100)
+  descricao   String?  @db.Text
+  metodologia String?  @db.Text
+  material    String?  @db.VarChar(100)
+  valor       Decimal? @db.Decimal(10,2)
+  tempoResultado Int?  @map("tempo_resultado") // em horas
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  parametros  ParametroExame[]
+  pedidoExames PedidoExame[]
+
+  @@map("exames")
+}
+
+model ParametroExame {
+  id          Int      @id @default(autoincrement())
+  exameId     Int      @map("exame_id")
+  nome        String   @db.VarChar(100)
+  unidade     String?  @db.VarChar(20)
+  valorReferencia String? @map("valor_referencia") @db.Text
+  ordem       Int      @default(0)
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  exame       Exame    @relation(fields: [exameId], references: [id], onDelete: Cascade)
+  resultados  ResultadoExame[]
+
+  @@map("parametros_exames")
+}
+
+// ================================
+// TABELAS DE MOVIMENTO
+// ================================
+
+model Pedido {
+  id              Int      @id @default(autoincrement())
+  numero          String   @unique @db.VarChar(20)
+  clienteId       Int      @map("cliente_id")
+  animalId        Int      @map("animal_id")
+  profissionalId  Int?     @map("profissional_id")
+  usuarioId       Int      @map("usuario_id")
+  dataColeta      DateTime @map("data_coleta")
+  observacoes     String?  @db.Text
+  status          StatusPedido @default(PENDENTE)
+  valorTotal      Decimal? @map("valor_total") @db.Decimal(10,2)
+  desconto        Decimal? @db.Decimal(5,2) @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  animal          Animal   @relation(fields: [animalId], references: [id])
+  profissional    Profissional? @relation("PedidoSolicitante", fields: [profissionalId], references: [id])
+  usuario         Usuario  @relation("PedidoCriador", fields: [usuarioId], references: [id])
+  exames          PedidoExame[]
+  laudos          Laudo[]
+  contas          Conta[]
+
+  @@map("pedidos")
+}
+
+enum StatusPedido {
+  PENDENTE
+  COLETADO
+  EM_ANALISE
+  LIBERADO
+  ENTREGUE
+  CANCELADO
+}
+
+model PedidoExame {
+  id          Int      @id @default(autoincrement())
+  pedidoId    Int      @map("pedido_id")
+  exameId     Int      @map("exame_id")
+  valor       Decimal? @db.Decimal(10,2)
+  status      StatusExame @default(PENDENTE)
+  observacoes String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  exame       Exame    @relation(fields: [exameId], references: [id])
+  resultados  ResultadoExame[]
+
+  @@unique([pedidoId, exameId])
+  @@map("pedidos_exames")
+}
+
+enum StatusExame {
+  PENDENTE
+  EM_ANALISE
+  LIBERADO
+  CANCELADO
+}
+
+model ResultadoExame {
+  id              Int      @id @default(autoincrement())
+  pedidoExameId   Int      @map("pedido_exame_id")
+  parametroId     Int      @map("parametro_id")
+  valor           String?  @db.Text
+  observacao      String?  @db.Text
+  alterado        Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  pedidoExame     PedidoExame @relation(fields: [pedidoExameId], references: [id], onDelete: Cascade)
+  parametro       ParametroExame @relation(fields: [parametroId], references: [id])
+
+  @@unique([pedidoExameId, parametroId])
+  @@map("resultados_exames")
+}
+
+model Laudo {
+  id              Int      @id @default(autoincrement())
+  pedidoId        Int      @map("pedido_id")
+  profissionalId  Int?     @map("profissional_id")
+  usuarioId       Int?     @map("usuario_id")
+  conteudo        String   @db.Text
+  observacoes     String?  @db.Text
+  dataLiberacao   DateTime? @map("data_liberacao")
+  assinado        Boolean  @default(false)
+  enviado         Boolean  @default(false)
+  dataEnvio       DateTime? @map("data_envio")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  pedido          Pedido   @relation(fields: [pedidoId], references: [id])
+  profissional    Profissional? @relation("LaudoAssinante", fields: [profissionalId], references: [id])
+  usuario         Usuario? @relation("LaudoLiberador", fields: [usuarioId], references: [id])
+
+  @@map("laudos")
+}
+
+// ================================
+// TABELAS FINANCEIRAS
+// ================================
+
+model Banco {
+  id          Int      @id @default(autoincrement())
+  codigo      String?  @db.VarChar(10)
+  nome        String   @db.VarChar(100)
+  agencia     String?  @db.VarChar(20)
+  nomeAgencia String?  @map("nome_agencia") @db.VarChar(100)
+  conta       String?  @db.VarChar(20)
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  contas      Conta[]
+
+  @@map("bancos")
+}
+
+model Conta {
+  id          Int      @id @default(autoincrement())
+  pedidoId    Int?     @map("pedido_id")
+  bancoId     Int?     @map("banco_id")
+  tipo        TipoConta
+  descricao   String   @db.VarChar(200)
+  valor       Decimal  @db.Decimal(10,2)
+  dataVencimento DateTime @map("data_vencimento")
+  dataPagamento DateTime? @map("data_pagamento")
+  status      StatusConta @default(PENDENTE)
+  observacoes String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  pedido      Pedido?  @relation(fields: [pedidoId], references: [id])
+  banco       Banco?   @relation(fields: [bancoId], references: [id])
+
+  @@map("contas")
+}
+
+enum TipoConta {
+  RECEBER
+  PAGAR
+}
+
+enum StatusConta {
+  PENDENTE
+  PAGO
+  VENCIDO
+  CANCELADO
+}
+
+// ================================
+// TABELAS DE SISTEMA
+// ================================
+
+model LogSistema {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int?     @map("usuario_id")
+  acao      String   @db.VarChar(100)
+  tabela    String?  @db.VarChar(50)
+  registroId Int?    @map("registro_id")
+  dadosAntigos Json? @map("dados_antigos")
+  dadosNovos Json?   @map("dados_novos")
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("logs_sistema")
+}
+
+model ConfiguracaoSistema {
+  id        Int      @id @default(autoincrement())
+  chave     String   @unique @db.VarChar(100)
+  valor     String   @db.Text
+  descricao String?  @db.Text
+  tipo      TipoConfiguracao @default(STRING)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("configuracoes_sistema")
+}
+
+enum TipoConfiguracao {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+// ================================
+// ÍNDICES PARA PERFORMANCE
+// ================================
+
+// Índices para consultas frequentes
+// @@index([clienteId]) - já criado automaticamente pelo relacionamento
+// @@index([animalId]) - já criado automaticamente pelo relacionamento
+// @@index([status]) - para filtros de status
+// @@index([dataColeta]) - para consultas por período
+// @@index([createdAt]) - para ordenação temporal
+
+
+
