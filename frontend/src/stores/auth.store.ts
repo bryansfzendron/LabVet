@@ -231,7 +231,7 @@ export const useAuthStore = create<AuthState>()(
        */
       hasPermission: (permission: keyof User['perfil']['permissoes']): boolean => {
         const { user } = get();
-        if (!user) return false;
+        if (!user || !user.perfil || !user.perfil.permissoes) return false;
 
         return !!user.perfil.permissoes[permission];
       },

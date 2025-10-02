@@ -119,6 +119,10 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
       newErrors.clienteId = 'Cliente é obrigatório';
     }
 
+    if (!formData.sexo.trim()) {
+      newErrors.sexo = 'Sexo é obrigatório';
+    }
+
     if (formData.peso && isNaN(Number(formData.peso))) {
       newErrors.peso = 'Peso deve ser um número válido';
     }
@@ -141,7 +145,7 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
         especieId: formData.especieId,
         clienteId: formData.clienteId,
         raca: formData.raca || undefined,
-        sexo: formData.sexo as 'MACHO' | 'FEMEA',
+        sexo: formData.sexo as 'MACHO' | 'FEMEA' | 'INDEFINIDO',
         dataNascimento: formData.dataNascimento || undefined,
         peso: formData.peso ? Number(formData.peso) : undefined,
         observacoes: formData.observacoes || undefined,
@@ -194,7 +198,7 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nome do Animal *
+                Nome do Animal <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -212,7 +216,7 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Espécie *
+                Espécie <span className="text-red-500">*</span>
               </label>
               <SearchableDropdown
                 options={especies}
@@ -229,7 +233,7 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               <User className="w-4 h-4 inline mr-1" />
-              Cliente (Tutor) *
+              Cliente (Tutor) <span className="text-red-500">*</span>
             </label>
             <SearchableDropdown
               options={clientes}
@@ -259,17 +263,23 @@ const AnimalForm: React.FC<AnimalFormProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sexo
+                Sexo <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.sexo}
                 onChange={(e) => setFormData(prev => ({ ...prev, sexo: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                  errors.sexo ? 'border-red-300' : 'border-gray-300'
+                }`}
               >
                 <option value="">Selecione o sexo</option>
-                <option value="Macho">Macho</option>
-                <option value="Fêmea">Fêmea</option>
+                <option value="MACHO">Macho</option>
+                <option value="FEMEA">Fêmea</option>
+                <option value="INDEFINIDO">Indefinido</option>
               </select>
+              {errors.sexo && (
+                <p className="text-red-500 text-sm mt-1">{errors.sexo}</p>
+              )}
             </div>
           </div>
 

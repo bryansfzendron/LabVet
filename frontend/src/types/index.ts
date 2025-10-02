@@ -118,7 +118,7 @@ export interface Animal {
   nome: string;
   especie: Especie;
   raca?: string;
-  sexo: 'MACHO' | 'FEMEA';
+  sexo: 'MACHO' | 'FEMEA' | 'INDEFINIDO';
   dataNascimento?: string;
   peso?: number;
   microchip?: string;
@@ -137,7 +137,7 @@ export interface CreateAnimalRequest {
   clienteId: number;
   especieId: number;
   raca?: string;
-  sexo: 'MACHO' | 'FEMEA';
+  sexo: 'MACHO' | 'FEMEA' | 'INDEFINIDO';
   dataNascimento?: string;
   peso?: number;
   microchip?: string;
@@ -269,7 +269,7 @@ export interface ClienteFilters extends BaseFilters {
 export interface AnimalFilters extends BaseFilters {
   clienteId?: number;
   especieId?: number;
-  sexo?: 'MACHO' | 'FEMEA';
+  sexo?: 'MACHO' | 'FEMEA' | 'INDEFINIDO';
   ativo?: boolean;
 }
 

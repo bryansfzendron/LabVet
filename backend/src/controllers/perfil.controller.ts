@@ -12,12 +12,15 @@ const CRITICAL_PROFILE_CODES = ['ADMIN'] as const;
 
 /**
  * @route   GET /api/perfis
- * @desc    Listar todos os perfis ativos
+ * @desc    Listar todos os perfis ativos (para página de permissões)
  * @access  Private
  */
 export const getPerfis = asyncHandler(async (req: Request, res: Response) => {
   try {
     const perfis = await prisma.perfil.findMany({
+      where: {
+        ativo: true
+      },
       select: {
         id: true,
         nome: true,
@@ -34,6 +37,39 @@ export const getPerfis = asyncHandler(async (req: Request, res: Response) => {
     return res.json(perfis);
   } catch (error) {
     console.error('Erro ao buscar perfis:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+/**
+ * @route   GET /api/perfis/all
+ * @desc    Listar todos os perfis (ativos e inativos) para gerenciamento
+ * @access  Private (Admin only)
+ */
+export const getAllPerfis = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // Verificar se o usuário é admin
+    if (!req.user?.perfil || req.user.perfil !== 'ADMIN') {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem visualizar todos os perfis' });
+    }
+
+    const perfis = await prisma.perfil.findMany({
+      select: {
+        id: true,
+        nome: true,
+        codigo: true,
+        descricao: true,
+        permissoes: true,
+        ativo: true
+      },
+      orderBy: {
+        nome: 'asc'
+      }
+    });
+
+    return res.json(perfis);
+  } catch (error) {
+    console.error('Erro ao buscar todos os perfis:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });

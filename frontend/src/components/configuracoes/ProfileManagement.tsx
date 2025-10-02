@@ -7,14 +7,12 @@ import {
   Trash2,
   Shield,
   AlertTriangle,
-  Save,
   X,
   Check,
   Lock
 } from 'lucide-react';
 import { PerfilService, Perfil, CreatePerfilData, UpdatePerfilData } from '../../services/perfil.service';
 import { useAuthStore } from '@/stores/auth.store';
-import { PerfilPermissoes } from '@/types';
 
 // Apenas o perfil ADMIN é verdadeiramente crítico, pois:
 // - É o único que não pode ter suas permissões alteradas
@@ -30,7 +28,6 @@ const ProfileManagement: React.FC<ProfileManagementProps> = () => {
   const { user: currentUser } = useAuthStore();
   const [perfis, setPerfis] = useState<Perfil[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPerfil, setEditingPerfil] = useState<Perfil | null>(null);
@@ -42,15 +39,14 @@ const ProfileManagement: React.FC<ProfileManagementProps> = () => {
   // Verificar se o usuário atual tem permissão para gerenciar perfis
   const canManageProfiles = currentUser?.perfil?.permissoes?.admin || currentUser?.perfil?.permissoes?.configuracoes;
 
-  // Carregar perfis
+  // Carregar perfis (todos - ativos e inativos para gerenciamento)
   const loadPerfis = async () => {
     try {
       setLoading(true);
-      const data = await PerfilService.getPerfis();
+      const data = await PerfilService.getAllPerfis();
       setPerfis(data);
-      setError(null);
     } catch (err: any) {
-      setError(err.message || 'Erro ao carregar perfis');
+      console.error('Erro ao carregar perfis:', err.message || 'Erro desconhecido');
     } finally {
       setLoading(false);
     }
@@ -70,7 +66,11 @@ const ProfileManagement: React.FC<ProfileManagementProps> = () => {
       await loadPerfis();
       showNotification('success', 'Perfil criado com sucesso!');
     } catch (err: any) {
-      showNotification('error', err.message || 'Erro ao criar perfil');
+      console.error('Erro ao criar perfil:', err);
+      console.log('Erro completo:', err);
+      
+      // Re-lançar o erro para que o modal possa capturá-lo
+      throw err;
     }
   };
 
@@ -127,16 +127,6 @@ const ProfileManagement: React.FC<ProfileManagementProps> = () => {
     perfil.codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (perfil.descricao && perfil.descricao.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
-  const getPermissoesChips = (permissoes?: PerfilPermissoes | Record<string, any>) => {
-    if (!permissoes) return [];
-    
-    const activePermissions = Object.entries(permissoes)
-      .filter(([_, value]) => value === true)
-      .map(([key, _]) => key);
-    
-    return activePermissions;
-  };
 
   if (loading) {
     return (
@@ -334,22 +324,36 @@ const CreatePerfilModal: React.FC<{
   });
 
   const [codeError, setCodeError] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(''); // Limpar erro anterior
     
     // Validar se o código não é um código crítico reservado
     if (CRITICAL_PROFILE_CODES.includes(formData.codigo as any)) {
       setCodeError(`O código "${formData.codigo}" é reservado pelo sistema e não pode ser usado.`);
       return;
     }
+
+    // Validar formato do código
+    if (!/^[A-Z_]+$/.test(formData.codigo)) {
+      setCodeError('O código deve conter apenas letras maiúsculas e underscore (_)');
+      return;
+    }
     
     setCodeError('');
-    onSubmit(formData);
+    
+    try {
+      await onSubmit(formData);
+    } catch (err: any) {
+      setSubmitError(err.message);
+    }
   };
 
   const handleCodeChange = (value: string) => {
-    const upperValue = value.toUpperCase();
+    // Remover caracteres inválidos em tempo real
+    const upperValue = value.toUpperCase().replace(/[^A-Z_]/g, '');
     setFormData(prev => ({ ...prev, codigo: upperValue }));
     
     // Verificar se é um código crítico
@@ -360,8 +364,6 @@ const CreatePerfilModal: React.FC<{
     }
   };
 
-
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -371,6 +373,15 @@ const CreatePerfilModal: React.FC<{
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {submitError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center text-red-600">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              <span className="text-sm">{submitError}</span>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -400,6 +411,7 @@ const CreatePerfilModal: React.FC<{
                   : 'border-gray-300 focus:ring-blue-500'
               }`}
               required
+              placeholder="Ex: GERENTE, TECNICO_LAB"
             />
             {codeError && (
               <div className="mt-1 flex items-center text-sm text-red-600">
@@ -408,7 +420,7 @@ const CreatePerfilModal: React.FC<{
               </div>
             )}
             <p className="mt-1 text-xs text-gray-500">
-              Códigos reservados: {CRITICAL_PROFILE_CODES.join(', ')}
+              Use apenas letras maiúsculas e underscore (_). Códigos reservados: {CRITICAL_PROFILE_CODES.join(', ')}
             </p>
           </div>
 
@@ -423,8 +435,6 @@ const CreatePerfilModal: React.FC<{
               rows={3}
             />
           </div>
-
-
 
           <div className="flex justify-end space-x-3 pt-4">
             <button
@@ -523,15 +533,7 @@ const EditPerfilModal: React.FC<{
     }
   };
 
-  const handlePermissionChange = (permission: string, value: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      permissoes: {
-        ...prev.permissoes,
-        [permission]: value
-      }
-    }));
-  };
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

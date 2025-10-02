@@ -18,12 +18,46 @@ async function createTestData() {
           nome: 'ADMIN',
           codigo: 'ADMIN',
           descricao: 'Administrador do sistema',
+          permissoes: {
+            admin: true,
+            configuracoes: true,
+            usuarios: true,
+            relatorios: true,
+            pedidos: true,
+            laudos: true,
+            clientes: true,
+            animais: true,
+            exames: true,
+            financeiro: true,
+            agenda: true,
+            dashboard: true
+          },
           ativo: true
         }
       });
       console.log('✅ Perfil ADMIN criado:', perfilAdmin);
     } else {
-      console.log('✅ Perfil ADMIN já existe:', perfilAdmin);
+      // Atualizar permissões do perfil ADMIN se já existir
+      perfilAdmin = await prisma.perfil.update({
+        where: { id: perfilAdmin.id },
+        data: {
+          permissoes: {
+            admin: true,
+            configuracoes: true,
+            usuarios: true,
+            relatorios: true,
+            pedidos: true,
+            laudos: true,
+            clientes: true,
+            animais: true,
+            exames: true,
+            financeiro: true,
+            agenda: true,
+            dashboard: true
+          }
+        }
+      });
+      console.log('✅ Permissões do perfil ADMIN atualizadas:', perfilAdmin);
     }
 
     // Verificar se usuário admin já existe

@@ -73,6 +73,19 @@ export class PerfilService {
   }
 
   /**
+   * Buscar todos os perfis (ativos e inativos) para gerenciamento
+   */
+  static async getAllPerfis(): Promise<Perfil[]> {
+    try {
+      const response = await get<Perfil[]>('/perfis/all');
+      return response;
+    } catch (error) {
+      console.error('Erro ao buscar todos os perfis:', error);
+      throw new Error('Falha ao carregar todos os perfis');
+    }
+  }
+
+  /**
    * Buscar perfil por ID
    */
   static async getPerfilById(id: number): Promise<Perfil> {
@@ -92,11 +105,22 @@ export class PerfilService {
     try {
       const response = await post<{ perfil: Perfil }>('/perfis', data);
       return response.perfil;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar perfil:', error);
-      throw new Error('Falha ao criar perfil');
+      
+      // Capturar a mensagem de erro do backend de diferentes formas possíveis
+      let errorMessage = 'Falha ao criar perfil';
+      
+      if (error.error) {
+        errorMessage = error.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('Mensagem de erro capturada:', errorMessage);
+      throw new Error(errorMessage);
     }
-  }
+  };
 
   /**
    * Atualizar perfil
