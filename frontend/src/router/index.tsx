@@ -140,7 +140,11 @@ export const router = createBrowserRouter([
       // Configurações
       {
         path: 'configuracoes',
-        element: <ConfiguracoesPage />,
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <ConfiguracoesPage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

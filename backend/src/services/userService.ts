@@ -2,9 +2,9 @@ import * as bcrypt from 'bcryptjs';
 import { generateToken } from '../middleware/auth';
 
 interface JWTPayload {
-  id: string;
+  userId: number;
   email: string;
-  role: string;
+  perfil: string;
 }
 
 export interface User {
@@ -108,13 +108,12 @@ class UserService {
     user.updated_at = new Date();
     
     // Gerar token JWT
-    const tokenPayload: JWTPayload = {
-      id: user.id,
+    const token = generateToken({
+      id: parseInt(user.id), // Converter string para number
       email: user.email,
-      role: user.role
-    };
-    
-    const token = generateToken(tokenPayload);
+      nome: user.nome,
+      perfil: user.role
+    });
     
     // Retornar dados sem a senha
     const { senha_hash, ...userWithoutPassword } = user;
@@ -170,11 +169,10 @@ class UserService {
   
   async getAllUsers(): Promise<Omit<User, 'senha_hash'>[]> {
     return mockUsers
-      .filter(u => u.ativo)
       .map(({ senha_hash, ...user }) => user);
   }
   
-  async updateUser(id: string, updateData: Partial<CreateUserRequest>): Promise<Omit<User, 'senha_hash'> | null> {
+  async updateUser(id: string, updateData: Partial<CreateUserRequest & { ativo?: boolean }>): Promise<Omit<User, 'senha_hash'> | null> {
     const userIndex = mockUsers.findIndex(u => u.id === id);
     
     if (userIndex === -1) {
@@ -190,6 +188,7 @@ class UserService {
     if (updateData.nome) user.nome = updateData.nome;
     if (updateData.email) user.email = updateData.email;
     if (updateData.role) user.role = updateData.role;
+    if (typeof updateData.ativo === 'boolean') user.ativo = updateData.ativo;
     
     // Atualizar senha se fornecida
     if (updateData.senha) {

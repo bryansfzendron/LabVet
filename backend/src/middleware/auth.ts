@@ -5,9 +5,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'labvet-secret-key-2024';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
-    id: number;
+    userId: number;
     email: string;
-    nome: string;
     perfil: string;
   };
 }
@@ -24,7 +23,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
-      res.status(403).json({ error: 'Token inválido' });
+      res.status(401).json({ error: 'Token inválido' });
       return;
     }
     req.user = user;
@@ -34,7 +33,7 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
 
 // Middleware para verificar se é admin
 export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user || req.user.perfil !== 'admin') {
+  if (!req.user || req.user.perfil.toUpperCase() !== 'ADMIN') {
     return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
   }
   return next();
@@ -42,20 +41,19 @@ export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: Nex
 
 // Middleware para verificar se é veterinário ou admin
 export const requireVeterinarian = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user || !['admin', 'veterinario'].includes(req.user.perfil)) {
+  if (!req.user || !['ADMIN', 'VETERINARIO'].includes(req.user.perfil.toUpperCase())) {
     return res.status(403).json({ error: 'Acesso negado. Apenas veterinários e administradores.' });
   }
   return next();
 };
 
 // Função para gerar token
-export const generateToken = (user: any) => {
+export const generateToken = (userId: number, email: string, perfil: string) => {
   return jwt.sign(
     {
-      id: user.id,
-      email: user.email,
-      nome: user.nome,
-      perfil: user.perfil
+      userId,
+      email,
+      perfil
     },
     JWT_SECRET,
     { expiresIn: '24h' }
@@ -73,7 +71,7 @@ export const verifyToken = (token: string) => {
 
 // Middleware para verificar se é gerente ou admin
 export const requireManager = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user || !['admin', 'gerente', 'veterinario'].includes(req.user.perfil)) {
+  if (!req.user || !['ADMIN', 'GERENTE', 'VETERINARIO'].includes(req.user.perfil.toUpperCase())) {
     return res.status(403).json({ error: 'Acesso negado. Apenas gerentes, veterinários e administradores.' });
   }
   return next();

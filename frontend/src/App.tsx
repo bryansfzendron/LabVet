@@ -4,12 +4,15 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 
 // Store
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/auth.store';
 import { useConfigStore } from '@/stores/configStore';
 
 // Layouts
 import AuthLayout from '@/components/layouts/AuthLayout';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
+
+// Maintenance
+import MaintenanceChecker from '@/components/maintenance/MaintenanceChecker';
 
 // Pages - Auth
 import LoginPage from '@/pages/auth/LoginPage';
@@ -70,7 +73,7 @@ const queryClient = new QueryClient({
 // COMPONENTE PRINCIPAL
 // ================================
 const App: React.FC = () => {
-  const { checkAuth } = useAuthStore();
+  const { checkSession } = useAuthStore();
   const { loadConfig } = useConfigStore();
   
   // Inicializar configurações e tema
@@ -81,92 +84,94 @@ const App: React.FC = () => {
         await loadConfig();
         
         // Verificar autenticação
-        await checkAuth();
+        await checkSession();
       } catch (error) {
         console.error('Erro ao inicializar aplicação:', error);
       }
     };
 
     initializeApp();
-  }, [checkAuth, loadConfig]);
+  }, [checkSession, loadConfig]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="App">
-        <Routes>
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Test route - accessible without auth for testing */}
-          <Route path="/test/config" element={<ConfigTest />} />
-          
-          {/* Direct login route for backward compatibility */}
-          <Route path="/login" element={<Navigate to="/auth/login" replace />} />
-          
-          {/* Auth routes */}
-          <Route path="/auth" element={<AuthLayout />}>
-            <Route path="login" element={<LoginPage />} />
-            <Route index element={<Navigate to="/auth/login" replace />} />
-          </Route>
+      <MaintenanceChecker>
+        <div className="App">
+          <Routes>
+            {/* Redirect root to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Test route - accessible without auth for testing */}
+            <Route path="/test/config" element={<ConfigTest />} />
+            
+            {/* Direct login route for backward compatibility */}
+            <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+            
+            {/* Auth routes */}
+            <Route path="/auth" element={<AuthLayout />}>
+              <Route path="login" element={<LoginPage />} />
+              <Route index element={<Navigate to="/auth/login" replace />} />
+            </Route>
 
-          {/* Dashboard routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardPage />} />
-            
-            {/* Clientes */}
-            <Route path="clientes" element={<ClientesPage />} />
-            <Route path="clientes/:id" element={<ClienteDetalhePage />} />
-            
-            {/* Animais */}
-            <Route path="animais" element={<AnimaisPage />} />
-            <Route path="animais/:id" element={<AnimalDetalhePage />} />
-            
-            {/* Profissionais */}
-            <Route path="profissionais" element={<ProfissionaisPage />} />
-            <Route path="profissionais/:id" element={<ProfissionalDetalhePage />} />
-            
-            {/* Exames */}
-            <Route path="exames" element={<ExamesPage />} />
-            <Route path="exames/:id" element={<ExameDetalhePage />} />
-            
-            {/* Pedidos */}
-            <Route path="pedidos" element={<PedidosPage />} />
-            <Route path="pedidos/novo" element={<NovoPedidoPage />} />
-            <Route path="pedidos/:id" element={<PedidoDetalhePage />} />
-            
-            {/* Relatórios */}
-            <Route path="relatorios" element={<RelatoriosPage />} />
-            
-            {/* Financeiro */}
-            <Route path="financeiro" element={<FinanceiroPage />} />
-            
-            {/* Configurações */}
-            <Route path="configuracoes" element={<ConfiguracoesPage />} />
-          </Route>
+            {/* Dashboard routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              
+              {/* Clientes */}
+              <Route path="clientes" element={<ClientesPage />} />
+              <Route path="clientes/:id" element={<ClienteDetalhePage />} />
+              
+              {/* Animais */}
+              <Route path="animais" element={<AnimaisPage />} />
+              <Route path="animais/:id" element={<AnimalDetalhePage />} />
+              
+              {/* Profissionais */}
+              <Route path="profissionais" element={<ProfissionaisPage />} />
+              <Route path="profissionais/:id" element={<ProfissionalDetalhePage />} />
+              
+              {/* Exames */}
+              <Route path="exames" element={<ExamesPage />} />
+              <Route path="exames/:id" element={<ExameDetalhePage />} />
+              
+              {/* Pedidos */}
+              <Route path="pedidos" element={<PedidosPage />} />
+              <Route path="pedidos/novo" element={<NovoPedidoPage />} />
+              <Route path="pedidos/:id" element={<PedidoDetalhePage />} />
+              
+              {/* Relatórios */}
+              <Route path="relatorios" element={<RelatoriosPage />} />
+              
+              {/* Financeiro */}
+              <Route path="financeiro" element={<FinanceiroPage />} />
+              
+              {/* Configurações */}
+              <Route path="configuracoes" element={<ConfiguracoesPage />} />
+            </Route>
 
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            {/* Catch all */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
 
-        {/* Toast notifications */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: 'var(--toast-bg)',
-              color: 'var(--toast-color)',
-            },
-          }}
-        />
-      </div>
+          {/* Toast notifications */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'var(--toast-bg)',
+                color: 'var(--toast-color)',
+              },
+            }}
+          />
+        </div>
+      </MaintenanceChecker>
     </QueryClientProvider>
   );
 };

@@ -16,6 +16,7 @@ import pedidoRoutes from './routes/pedido.routes';
 import laudoRoutes from './routes/laudo.routes';
 import financeiroRoutes from './routes/financeiro.routes';
 import relatorioRoutes from './routes/relatorio.routes';
+import logsRoutes from './routes/logs';
 
 // Importar middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -54,6 +55,7 @@ app.use(cors({
     process.env.FRONTEND_URL || 'http://localhost:5173',
     'http://localhost:5173',
     'http://localhost:5178',
+    'http://192.168.15.225:5178',
     'https://labvet.bryanzendron.com.br',
     'http://labvet.bryanzendron.com.br'
   ],
@@ -102,6 +104,7 @@ app.use('/api/pedidos', pedidoRoutes);
 app.use('/api/laudos', laudoRoutes);
 app.use('/api/financeiro', financeiroRoutes);
 app.use('/api/relatorios', relatorioRoutes);
+app.use('/api/logs', logsRoutes);
 
 // ================================
 // MIDDLEWARES DE ERRO

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/auth.store';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const LoginPage: React.FC = () => {

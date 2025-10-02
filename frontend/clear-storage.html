@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Storage - LabVet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Storage - LabVet</h1>
+        <p>Use esta página para limpar o localStorage e sessionStorage do LabVet.</p>
+        
+        <div>
+            <button onclick="clearAll()">🗑️ Limpar Tudo</button>
+            <button onclick="clearLabVet()" class="info">🎯 Limpar Apenas LabVet</button>
+            <button onclick="showStorage()" class="success">👁️ Mostrar Storage</button>
+            <button onclick="goToApp()" class="success">🚀 Ir para App</button>
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function clearAll() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('output').innerHTML = '<pre style="color: green;">✅ Todo o localStorage e sessionStorage foram limpos!</pre>';
+        }
+
+        function clearLabVet() {
+            // Limpar apenas as chaves relacionadas ao LabVet
+            const keys = Object.keys(localStorage);
+            const labvetKeys = keys.filter(key => 
+                key.includes('labvet') || 
+                key.includes('auth') || 
+                key.includes('user')
+            );
+            
+            labvetKeys.forEach(key => {
+                localStorage.removeItem(key);
+            });
+            
+            document.getElementById('output').innerHTML = `<pre style="color: green;">✅ Chaves do LabVet removidas: ${labvetKeys.join(', ')}</pre>`;
+        }
+
+        function showStorage() {
+            const local = {};
+            const session = {};
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                local[key] = localStorage.getItem(key);
+            }
+            
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                session[key] = sessionStorage.getItem(key);
+            }
+            
+            document.getElementById('output').innerHTML = `
+                <h3>📦 localStorage:</h3>
+                <pre>${JSON.stringify(local, null, 2)}</pre>
+                <h3>📦 sessionStorage:</h3>
+                <pre>${JSON.stringify(session, null, 2)}</pre>
+            `;
+        }
+
+        function goToApp() {
+            window.location.href = 'http://localhost:5178';
+        }
+
+        // Mostrar storage ao carregar
+        showStorage();
+    </script>
+</body>
+</html>

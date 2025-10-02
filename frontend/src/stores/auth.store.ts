@@ -22,7 +22,7 @@ interface AuthState {
     nome: string;
     email: string;
     senha: string;
-    tipo: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'ATENDENTE';
+    role: 'admin' | 'veterinario' | 'atendente' | 'user';
   }) => Promise<boolean>;
   changePassword: (data: {
     senhaAtual: string;
@@ -32,7 +32,7 @@ interface AuthState {
   clearError: () => void;
   
   // Getters
-  hasPermission: (requiredRole: User['tipo']) => boolean;
+  hasPermission: (requiredRole: User['role']) => boolean;
   isAdmin: () => boolean;
   isManager: () => boolean;
   isVeterinarian: () => boolean;
@@ -64,8 +64,24 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await AuthService.login(credentials);
           
+          // Mapear perfil do backend para role do frontend
+          const perfilToRoleMap: Record<string, User['role']> = {
+            'ADMIN': 'admin',
+            'GERENTE': 'veterinario',
+            'VETERINARIO': 'veterinario',
+            'TECNICO': 'atendente',
+            'OPERADOR': 'user'
+          };
+
+          const mappedRole = perfilToRoleMap[response.user.perfil.codigo] || 'user';
+
+          const userWithRole = {
+            ...response.user,
+            role: mappedRole
+          };
+          
           set({
-            user: response.user,
+            user: userWithRole,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -122,7 +138,22 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          await AuthService.register(userData);
+          // Mapear role para perfil
+          const roleToPerfilMap = {
+            'admin': 'ADMIN',
+            'veterinario': 'VETERINARIO',
+            'atendente': 'TECNICO',
+            'user': 'OPERADOR'
+          } as const;
+
+          const registerData = {
+            nome: userData.nome,
+            email: userData.email,
+            senha: userData.senha,
+            perfil: roleToPerfilMap[userData.role] as 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR'
+          };
+
+          await AuthService.register(registerData);
           
           set({
             isLoading: false,
@@ -184,13 +215,35 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const user = await AuthService.verifyToken();
+          const isValid = await AuthService.verifyToken();
           
-          set({
-            user,
-            isAuthenticated: true,
-            error: null,
-          });
+          if (isValid) {
+            // Mapear perfil do backend para role do frontend
+            const perfilToRoleMap: Record<string, User['role']> = {
+              'ADMIN': 'admin',
+              'GERENTE': 'admin',
+              'VETERINARIO': 'veterinario',
+              'TECNICO': 'atendente',
+              'OPERADOR': 'user'
+            };
+
+            const userWithRole = {
+              ...currentUser,
+              role: perfilToRoleMap[currentUser.perfil.codigo] || 'user'
+            };
+
+            set({
+              user: userWithRole,
+              isAuthenticated: true,
+              error: null,
+            });
+          } else {
+            set({
+              user: null,
+              isAuthenticated: false,
+              error: null,
+            });
+          }
         } catch (error: any) {
           set({
             user: null,
@@ -214,39 +267,39 @@ export const useAuthStore = create<AuthState>()(
       /**
        * Verificar permissão
        */
-      hasPermission: (requiredRole: User['tipo']): boolean => {
+      hasPermission: (requiredRole: User['role']): boolean => {
         const { user } = get();
         if (!user) return false;
 
-        const roleHierarchy: Record<User['tipo'], number> = {
-          ADMIN: 4,
-          GERENTE: 3,
-          VETERINARIO: 2,
-          ATENDENTE: 1,
+        const roleHierarchy: Record<User['role'], number> = {
+          admin: 4,
+          veterinario: 3,
+          atendente: 2,
+          user: 1,
         };
 
-        return roleHierarchy[user.tipo] >= roleHierarchy[requiredRole];
+        return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
       },
 
       /**
        * Verificar se é admin
        */
       isAdmin: (): boolean => {
-        return get().hasPermission('ADMIN');
+        return get().hasPermission('admin');
       },
 
       /**
        * Verificar se é gerente ou superior
        */
       isManager: (): boolean => {
-        return get().hasPermission('GERENTE');
+        return get().hasPermission('veterinario');
       },
 
       /**
        * Verificar se é veterinário ou superior
        */
       isVeterinarian: (): boolean => {
-        return get().hasPermission('VETERINARIO');
+        return get().hasPermission('veterinario');
       },
     }),
     {

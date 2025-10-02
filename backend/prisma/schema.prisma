@@ -34,30 +34,42 @@ model Empresa {
   @@map("empresas")
 }
 
+model Perfil {
+  id          Int      @id @default(autoincrement())
+  nome        String   @unique @db.VarChar(50)
+  codigo      String   @unique @db.VarChar(20)
+  descricao   String?  @db.VarChar(200)
+  permissoes  Json?    // Armazena as permissões específicas do perfil
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  usuarios    Usuario[]
+
+  @@map("perfis")
+}
+
 model Usuario {
   id        Int      @id @default(autoincrement())
   nome      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(100)
   senha     String   @db.VarChar(255)
-  perfil    PerfilUsuario @default(OPERADOR)
+  perfilId  Int      @map("perfil_id")
   ativo     Boolean  @default(true)
   ultimoLogin DateTime? @map("ultimo_login")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relacionamentos
+  perfil      Perfil   @relation(fields: [perfilId], references: [id])
   pedidosCriados Pedido[] @relation("PedidoCriador")
   laudosLiberados Laudo[] @relation("LaudoLiberador")
+  sessoesAtivas SessaoAtiva[]
+  historicoLogins HistoricoLogin[]
+  logsSistema LogSistema[]
 
   @@map("usuarios")
-}
-
-enum PerfilUsuario {
-  ADMIN
-  GERENTE
-  VETERINARIO
-  TECNICO
-  OPERADOR
 }
 
 // ================================
@@ -398,7 +410,50 @@ model LogSistema {
   userAgent String?  @map("user_agent") @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
+  // Relacionamentos
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
+
   @@map("logs_sistema")
+}
+
+model SessaoAtiva {
+  id        String   @id @default(cuid())
+  usuarioId Int      @map("usuario_id")
+  token     String   @unique @db.Text
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  dispositivo String? @db.VarChar(100)
+  localizacao String? @db.VarChar(100)
+  inicioSessao DateTime @default(now()) @map("inicio_sessao")
+  ultimaAtividade DateTime @default(now()) @map("ultima_atividade")
+  ativa     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("sessoes_ativas")
+}
+
+model HistoricoLogin {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  dispositivo String? @db.VarChar(100)
+  localizacao String? @db.VarChar(100)
+  sucesso   Boolean  @default(true)
+  motivo    String?  @db.VarChar(200) // Motivo da falha se sucesso = false
+  dataLogin DateTime @default(now()) @map("data_login")
+  dataLogout DateTime? @map("data_logout")
+  duracaoSessao Int?  @map("duracao_sessao") // em minutos
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relacionamentos
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("historico_login")
 }
 
 model ConfiguracaoSistema {

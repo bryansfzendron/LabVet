@@ -138,8 +138,8 @@ export const get = async <T>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  const response = await api.get<ApiResponse<T>>(url, config);
-  return response.data.data;
+  const response = await api.get<T>(url, config);
+  return response.data;
 };
 
 /**
@@ -150,8 +150,8 @@ export const post = async <T, D = any>(
   data?: D,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  const response = await api.post<ApiResponse<T>>(url, data, config);
-  return response.data.data;
+  const response = await api.post<T>(url, data, config);
+  return response.data;
 };
 
 /**
@@ -162,8 +162,8 @@ export const put = async <T, D = any>(
   data?: D,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  const response = await api.put<ApiResponse<T>>(url, data, config);
-  return response.data.data;
+  const response = await api.put<T>(url, data, config);
+  return response.data;
 };
 
 /**
@@ -174,8 +174,8 @@ export const patch = async <T, D = any>(
   data?: D,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  const response = await api.patch<ApiResponse<T>>(url, data, config);
-  return response.data.data;
+  const response = await api.patch<T>(url, data, config);
+  return response.data;
 };
 
 /**
@@ -185,8 +185,8 @@ export const del = async <T>(
   url: string,
   config?: AxiosRequestConfig
 ): Promise<T> => {
-  const response = await api.delete<ApiResponse<T>>(url, config);
-  return response.data.data;
+  const response = await api.delete<T>(url, config);
+  return response.data;
 };
 
 /**
@@ -288,4 +288,5 @@ export const clearAuth = (): void => {
 };
 
 // Exportar instância do Axios para uso direto se necessário
+export { api };
 export default api;

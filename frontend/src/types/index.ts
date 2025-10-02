@@ -2,15 +2,24 @@
 // TIPOS DE AUTENTICAÇÃO
 // ================================
 
+export interface Perfil {
+  id: number;
+  nome: string;
+  codigo: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR';
+  descricao: string;
+  permissoes: any;
+}
+
 export interface User {
-  id: string;
+  id: number;
   nome: string;
   email: string;
+  perfil: Perfil;
   role: 'admin' | 'veterinario' | 'atendente' | 'user';
   ativo: boolean;
-  ultimo_login?: Date;
-  created_at: Date;
-  updated_at: Date;
+  ultimoLogin?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginRequest {
@@ -19,9 +28,9 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  message: string;
   user: User;
   token: string;
-  expiresIn: number;
 }
 
 // ================================

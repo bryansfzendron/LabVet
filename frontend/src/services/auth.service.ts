@@ -1,4 +1,4 @@
-import { get, post, patch, setAuthToken, clearAuth } from './api';
+import { get, post, patch, put, del, setAuthToken, clearAuth } from './api';
 import { User, LoginRequest, LoginResponse } from '@/types';
 
 // ================================
@@ -7,16 +7,49 @@ import { User, LoginRequest, LoginResponse } from '@/types';
 
 export class AuthService {
   /**
+   * Mapear perfil do backend para role do frontend
+   */
+  private static mapPerfilToRole(perfil: string): User['role'] {
+    const mapping: Record<string, User['role']> = {
+      'ADMIN': 'admin',
+      'GERENTE': 'admin', // Gerente também tem privilégios de admin
+      'VETERINARIO': 'veterinario',
+      'TECNICO': 'atendente',
+      'OPERADOR': 'user'
+    };
+    return mapping[perfil] || 'user';
+  }
+
+  /**
    * Fazer login do usuário
    */
   static async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await post<LoginResponse>('/auth/login', credentials);
+    const response = await post<any>('/auth/login', credentials);
+    
+    // Mapear dados do usuário do backend para frontend
+    const mappedUser: User = {
+      id: response.user.id,
+      nome: response.user.nome,
+      email: response.user.email,
+      perfil: response.user.perfil,
+      role: this.mapPerfilToRole(response.user.perfil),
+      ativo: response.user.ativo,
+      ultimoLogin: response.user.ultimoLogin,
+      createdAt: response.user.createdAt,
+      updatedAt: response.user.updatedAt
+    };
+    
+    const loginResponse: LoginResponse = {
+      message: response.message,
+      user: mappedUser,
+      token: response.token
+    };
     
     // Salvar token e dados do usuário
-    setAuthToken(response.token);
-    localStorage.setItem('labvet_user', JSON.stringify(response.user));
+    setAuthToken(loginResponse.token);
+    localStorage.setItem('labvet_user', JSON.stringify(loginResponse.user));
     
-    return response;
+    return loginResponse;
   }
 
   /**
@@ -66,7 +99,7 @@ export class AuthService {
     nome: string;
     email: string;
     senha: string;
-    tipo: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'ATENDENTE';
+    perfil: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR';
   }): Promise<User> {
     return await post<User>('/auth/register', userData);
   }
@@ -75,7 +108,26 @@ export class AuthService {
    * Listar usuários (apenas admin)
    */
   static async listUsers(): Promise<User[]> {
-    return await get<User[]>('/auth/users');
+    const response = await get<{users: User[], pagination: any}>('/auth/users');
+    return response.users || [];
+  }
+
+  /**
+   * Atualizar usuário (apenas admin)
+   */
+  static async updateUser(userId: string, userData: {
+    nome?: string;
+    email?: string;
+    role?: string;
+  }): Promise<User> {
+    return await put<User>(`/auth/users/${userId}`, userData);
+  }
+
+  /**
+   * Deletar usuário (apenas admin) - Soft delete
+   */
+  static async deleteUser(userId: string): Promise<void> {
+    await del(`/auth/users/${userId}`);
   }
 
   /**

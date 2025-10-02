@@ -12,10 +12,17 @@ import {
   EyeOff,
   TestTube,
   FileText,
-  DollarSign
+  DollarSign,
+  Wrench,
+  AlertTriangle,
+  Clock,
+  HardDrive,
+  Key,
+  UserCheck
 } from 'lucide-react';
 import { useConfigStore } from '@/stores/configStore';
 import UserManagement from '@/components/configuracoes/UserManagement';
+import SecurityLogs from '@/components/configuracoes/SecurityLogs';
 
 interface ConfigSection {
   id: string;
@@ -104,66 +111,161 @@ const ConfiguracoesPage: React.FC = () => {
     return () => clearError();
   }, [clearError]);
 
-  const renderSistemaSection = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Fuso Horário
-          </label>
-          <select
-            value={config.sistema.timezone}
-            onChange={(e) => updateSistema({ timezone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="America/Sao_Paulo">São Paulo (UTC-3)</option>
-            <option value="America/Rio_Branco">Rio Branco (UTC-5)</option>
-            <option value="America/Manaus">Manaus (UTC-4)</option>
-          </select>
+  const renderSistemaSection = () => {
+    const handleMaintenanceToggle = (checked: boolean) => {
+      if (checked) {
+        // Confirmação antes de ativar o modo manutenção
+        const confirmActivation = window.confirm(
+          '⚠️ ATENÇÃO!\n\n' +
+          'Ativar o modo manutenção irá:\n' +
+          '• Bloquear o acesso de todos os usuários\n' +
+          '• Exibir uma página de manutenção\n' +
+          '• Apenas administradores poderão acessar o sistema\n\n' +
+          'Deseja continuar?'
+        );
+        if (confirmActivation) {
+          updateSistema({ manutencao: true });
+          // Mostrar toast de confirmação
+          setTimeout(() => {
+            alert('✅ Modo manutenção ATIVADO!\n\nApenas administradores podem acessar o sistema agora.');
+          }, 500);
+        }
+      } else {
+        const confirmDeactivation = window.confirm(
+          'Desativar o modo manutenção?\n\n' +
+          'O sistema voltará a funcionar normalmente para todos os usuários.'
+        );
+        if (confirmDeactivation) {
+          updateSistema({ manutencao: false });
+          setTimeout(() => {
+            alert('✅ Modo manutenção DESATIVADO!\n\nSistema funcionando normalmente.');
+          }, 500);
+        }
+      }
+    };
+  
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Fuso Horário
+            </label>
+            <select
+              value={config.sistema.timezone}
+              onChange={(e) => updateSistema({ timezone: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="America/Sao_Paulo">São Paulo (UTC-3)</option>
+              <option value="America/Rio_Branco">Rio Branco (UTC-5)</option>
+              <option value="America/Manaus">Manaus (UTC-4)</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nível de Logs
+            </label>
+            <select
+              value={config.sistema.logs_nivel}
+              onChange={(e) => updateSistema({ logs_nivel: e.target.value as any })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="debug">Debug</option>
+              <option value="info">Info</option>
+              <option value="warn">Warning</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
         </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Nível de Logs
-          </label>
-          <select
-            value={config.sistema.logs_nivel}
-            onChange={(e) => updateSistema({ logs_nivel: e.target.value as any })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="debug">Debug</option>
-            <option value="info">Info</option>
-            <option value="warn">Warning</option>
-            <option value="error">Error</option>
-          </select>
+  
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900">Configurações Avançadas</h3>
+          <div className="space-y-4">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={config.sistema.backup_automatico}
+                onChange={(e) => updateSistema({ backup_automatico: e.target.checked })}
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+              <span className="ml-2 text-sm text-gray-700">Backup automático diário</span>
+            </label>
+            
+            {/* Modo Manutenção com estilo especial */}
+            <div className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+              config.sistema.manutencao 
+                ? 'border-red-300 bg-red-50' 
+                : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className={`p-2 rounded-full ${
+                    config.sistema.manutencao ? 'bg-red-100' : 'bg-gray-100'
+                  }`}>
+                    {config.sistema.manutencao ? (
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                    ) : (
+                      <Wrench className="h-5 w-5 text-gray-600" />
+                    )}
+                  </div>
+                  <div className="ml-3">
+                    <h4 className={`text-sm font-medium ${
+                      config.sistema.manutencao ? 'text-red-900' : 'text-gray-900'
+                    }`}>
+                      Modo Manutenção
+                    </h4>
+                    <p className={`text-xs ${
+                      config.sistema.manutencao ? 'text-red-700' : 'text-gray-600'
+                    }`}>
+                      {config.sistema.manutencao 
+                        ? '🔒 Sistema bloqueado - apenas admins podem acessar'
+                        : '✅ Sistema funcionando normalmente'
+                      }
+                    </p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.sistema.manutencao}
+                    onChange={(e) => handleMaintenanceToggle(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className={`relative w-11 h-6 rounded-full peer transition-colors duration-200 ${
+                    config.sistema.manutencao 
+                      ? 'bg-red-600' 
+                      : 'bg-gray-200'
+                  } peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300`}>
+                    <div className={`absolute top-[2px] left-[2px] bg-white border border-gray-300 rounded-full h-5 w-5 transition-transform duration-200 ${
+                      config.sistema.manutencao ? 'translate-x-full' : ''
+                    }`}></div>
+                  </div>
+                </label>
+              </div>
+              
+              {config.sistema.manutencao && (
+                <div className="mt-3 p-3 bg-red-100 border border-red-200 rounded-md">
+                  <div className="flex items-start">
+                    <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <div className="text-xs text-red-800">
+                      <p className="font-medium">🚨 Sistema em Modo Manutenção ATIVO</p>
+                      <ul className="mt-1 space-y-1">
+                        <li>• Usuários comuns não conseguem acessar</li>
+                        <li>• Apenas administradores têm acesso</li>
+                        <li>• Página de manutenção sendo exibida</li>
+                      </ul>
+                      <p className="mt-2 font-medium">Para desativar, clique no botão acima.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Configurações Avançadas</h3>
-        <div className="space-y-3">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={config.sistema.backup_automatico}
-              onChange={(e) => updateSistema({ backup_automatico: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span className="ml-2 text-sm text-gray-700">Backup automático diário</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={config.sistema.manutencao}
-              onChange={(e) => updateSistema({ manutencao: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span className="ml-2 text-sm text-gray-700">Modo manutenção</span>
-          </label>
-        </div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderEmpresaSection = () => (
     <div className="space-y-6">
@@ -587,19 +689,120 @@ const ConfiguracoesPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Backup e Segurança */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900">Backup e Segurança</h3>
-        <div className="space-y-3">
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={config.sistema.backup_automatico}
-              onChange={(e) => updateSistema({ backup_automatico: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <span className="ml-2 text-sm text-gray-700">Backup automático diário</span>
-          </label>
+        <h3 className="text-lg font-medium text-gray-900 flex items-center">
+          <HardDrive className="w-5 h-5 mr-2" />
+          Backup e Segurança
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={config.sistema.backup_automatico}
+                onChange={(e) => updateSistema({ backup_automatico: e.target.checked })}
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+              <span className="ml-2 text-sm text-gray-700">Backup automático diário</span>
+            </label>
+            
+            <div className="flex items-center space-x-2">
+              <label className="text-sm text-gray-700">Horário:</label>
+              <input
+                type="time"
+                defaultValue="02:00"
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <label className="text-sm text-gray-700">Retenção (dias):</label>
+              <input
+                type="number"
+                defaultValue="30"
+                min="1"
+                max="365"
+                className="px-2 py-1 border border-gray-300 rounded text-sm w-20"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+              Fazer Backup Agora
+            </button>
+            <button className="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm">
+              Restaurar Backup
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Configurações de Sessão */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-gray-900 flex items-center">
+          <UserCheck className="w-5 h-5 mr-2" />
+          Configurações de Sessão
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <label className="text-sm text-gray-700">Timeout de sessão (min):</label>
+              <input
+                type="number"
+                defaultValue="30"
+                min="5"
+                max="480"
+                className="px-2 py-1 border border-gray-300 rounded text-sm w-20"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <label className="text-sm text-gray-700">Tentativas de login:</label>
+              <input
+                type="number"
+                defaultValue="5"
+                min="3"
+                max="10"
+                className="px-2 py-1 border border-gray-300 rounded text-sm w-20"
+              />
+            </div>
+            
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                defaultChecked={true}
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+              <span className="ml-2 text-sm text-gray-700">Log de tentativas falhadas</span>
+            </label>
+          </div>
+          
+          <div className="space-y-3">
+            <button className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+              Forçar Logout de Todos
+            </button>
+            
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                defaultChecked={false}
+                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+              <span className="ml-2 text-sm text-gray-700">Autenticação 2FA (em breve)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Logs e Auditoria */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium text-gray-900 flex items-center">
+          <Clock className="w-5 h-5 mr-2" />
+          Logs e Auditoria
+        </h3>
+        <SecurityLogs />
       </div>
     </div>
   );

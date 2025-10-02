@@ -24,6 +24,9 @@
   ],
   "author": "LabVet Team",
   "license": "MIT",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@types/bcrypt": "^6.0.0",

@@ -4,7 +4,9 @@ import * as jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import prisma from '../config/database';
 import { asyncHandler, AppError, createValidationError, createUnauthorizedError } from '../middleware/errorHandler';
-import { AuthenticatedRequest } from '../middleware/auth';
+import { AuthenticatedRequest, generateToken } from '../middleware/auth';
+import { SessionService } from '../services/sessionService';
+import { LoginHistoryService } from '../services/loginHistoryService';
 
 // Schemas de validação
 const loginSchema = z.object({
@@ -16,7 +18,7 @@ const registerSchema = z.object({
   nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  perfil: z.enum(['ADMIN', 'GERENTE', 'VETERINARIO', 'TECNICO', 'OPERADOR']),
+  perfilId: z.number().int().positive('ID do perfil deve ser um número positivo'),
 });
 
 const changePasswordSchema = z.object({
@@ -24,94 +26,178 @@ const changePasswordSchema = z.object({
   novaSenha: z.string().min(6, 'Nova senha deve ter pelo menos 6 caracteres'),
 });
 
-// Função para gerar JWT
-const generateToken = (userId: number, email: string, perfil: string): string => {
-  const jwtSecret = process.env.JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error('JWT_SECRET não configurado');
-  }
+// Função para gerar token JWT
 
-  return jwt.sign(
-    { userId, email, perfil },
-    jwtSecret,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '24h' } as jwt.SignOptions
-  );
-};
 
 // Função para hash da senha
 const hashPassword = async (password: string): Promise<string> => {
-  const saltRounds = 12;
-  return bcrypt.hash(password, saltRounds);
+  return await bcrypt.hash(password, 12);
 };
 
-// Login
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  // Validar dados de entrada
-  const validatedData = loginSchema.parse(req.body);
-  const { email, senha } = validatedData;
+  const { email, senha } = loginSchema.parse(req.body);
 
-  // Buscar usuário
-  const user = await prisma.usuario.findUnique({
-    where: { email },
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-      senha: true,
-      perfil: true,
-      ativo: true,
-      ultimoLogin: true,
-    },
-  });
+  try {
+    // Buscar usuário com perfil
+    const user = await prisma.usuario.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        senha: true,
+        perfilId: true,
+        ativo: true,
+        ultimoLogin: true,
+        createdAt: true,
+        updatedAt: true,
+        perfil: {
+          select: {
+            id: true,
+            nome: true,
+            codigo: true,
+            descricao: true,
+            permissoes: true,
+          },
+        },
+      },
+    });
 
-  if (!user) {
-    throw createUnauthorizedError('Credenciais inválidas');
+    if (!user) {
+      // Registrar tentativa de login falhada
+      await LoginHistoryService.recordLogin({
+        usuarioId: 0, // ID 0 para usuário não encontrado
+        ip: req.ip || undefined,
+        userAgent: req.get('User-Agent') || undefined,
+        sucesso: false,
+        motivo: 'Usuário não encontrado',
+      });
+      
+      throw createUnauthorizedError('Credenciais inválidas');
+    }
+
+    if (!user.ativo) {
+      // Registrar tentativa de login falhada
+      await LoginHistoryService.recordLogin({
+        usuarioId: user.id,
+        ip: req.ip || undefined,
+        userAgent: req.get('User-Agent') || undefined,
+        sucesso: false,
+        motivo: 'Usuário inativo',
+      });
+      
+      throw createUnauthorizedError('Usuário inativo');
+    }
+
+    // Verificar senha
+    const isPasswordValid = await bcrypt.compare(senha, user.senha);
+    if (!isPasswordValid) {
+      // Registrar tentativa de login falhada
+      await LoginHistoryService.recordLogin({
+        usuarioId: user.id,
+        ip: req.ip || undefined,
+        userAgent: req.get('User-Agent') || undefined,
+        sucesso: false,
+        motivo: 'Senha incorreta',
+      });
+      
+      throw createUnauthorizedError('Credenciais inválidas');
+    }
+
+    // Gerar token
+    const token = generateToken(user.id, user.email, user.perfil.codigo);
+
+    // Criar sessão ativa
+    await SessionService.createSession({
+      usuarioId: user.id,
+      token,
+      ip: req.ip || undefined,
+      userAgent: req.get('User-Agent') || undefined,
+    });
+
+    // Registrar login bem-sucedido
+    await LoginHistoryService.recordLogin({
+      usuarioId: user.id,
+      ip: req.ip || undefined,
+      userAgent: req.get('User-Agent') || undefined,
+      sucesso: true,
+    });
+
+    // Atualizar último login
+    await prisma.usuario.update({
+      where: { id: user.id },
+      data: { ultimoLogin: new Date() },
+    });
+
+    // Log de login
+    const logData: any = {
+      usuarioId: user.id,
+      acao: 'LOGIN',
+      tabela: 'usuarios',
+      registroId: user.id,
+    };
+    
+    if (req.ip) logData.ip = req.ip;
+    if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
+    
+    await prisma.logSistema.create({
+      data: logData,
+    });
+
+    // Retornar dados do usuário (sem senha)
+    const { senha: _, ...userWithoutPassword } = user;
+
+    res.json({
+      message: 'Login realizado com sucesso',
+      user: userWithoutPassword,
+      token,
+    });
+  } catch (error) {
+    // Se não foi um erro conhecido, registrar como erro interno
+    if (!(error instanceof AppError)) {
+      await LoginHistoryService.recordLogin({
+        usuarioId: 0,
+        ip: req.ip || undefined,
+        userAgent: req.get('User-Agent') || undefined,
+        sucesso: false,
+        motivo: 'Erro interno do servidor',
+      });
+    }
+    throw error;
   }
+});
 
-  if (!user.ativo) {
-    throw createUnauthorizedError('Usuário inativo');
+// Logout
+export const logout = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  if (req.user) {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (token) {
+      // Encerrar sessão ativa
+      await SessionService.endSession(token);
+      
+      // Registrar logout no histórico (usar data atual como aproximação)
+      await LoginHistoryService.recordLogout(req.user.userId, new Date());
+    }
+
+    // Log de logout
+    const logData: any = {
+      usuarioId: req.user.userId,
+      acao: 'LOGOUT',
+      tabela: 'usuarios',
+      registroId: req.user.userId,
+    };
+    
+    if (req.ip) logData.ip = req.ip;
+    if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
+    
+    await prisma.logSistema.create({
+      data: logData,
+    });
   }
-
-  // Verificar senha
-  const isPasswordValid = await bcrypt.compare(senha, user.senha);
-  if (!isPasswordValid) {
-    throw createUnauthorizedError('Credenciais inválidas');
-  }
-
-  // Atualizar último login
-  await prisma.usuario.update({
-    where: { id: user.id },
-    data: { ultimoLogin: new Date() },
-  });
-
-  // Gerar token
-  const token = generateToken(user.id, user.email, user.perfil);
-
-  // Log de login
-  const logData: any = {
-    usuarioId: user.id,
-    acao: 'LOGIN',
-    tabela: 'usuarios',
-    registroId: user.id,
-  };
-  
-  if (req.ip) logData.ip = req.ip;
-  if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
-  
-  await prisma.logSistema.create({
-    data: logData,
-  });
 
   res.json({
-    message: 'Login realizado com sucesso',
-    token,
-    user: {
-      id: user.id,
-      nome: user.nome,
-      email: user.email,
-      perfil: user.perfil,
-      ultimoLogin: user.ultimoLogin,
-    },
+    message: 'Logout realizado com sucesso',
   });
 });
 
@@ -119,7 +205,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 export const register = asyncHandler(async (req: Request, res: Response) => {
   // Validar dados de entrada
   const validatedData = registerSchema.parse(req.body);
-  const { nome, email, senha, perfil } = validatedData;
+  const { nome, email, senha, perfilId } = validatedData;
 
   // Verificar se email já existe
   const existingUser = await prisma.usuario.findUnique({
@@ -128,6 +214,15 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
   if (existingUser) {
     throw createValidationError('Email já está em uso');
+  }
+
+  // Verificar se o perfil existe
+  const perfil = await prisma.perfil.findUnique({
+    where: { id: perfilId },
+  });
+
+  if (!perfil) {
+    throw createValidationError('Perfil inválido');
   }
 
   // Hash da senha
@@ -139,15 +234,23 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
       nome,
       email,
       senha: hashedPassword,
-      perfil,
+      perfilId,
       ativo: true,
     },
     select: {
       id: true,
       nome: true,
       email: true,
-      perfil: true,
+      perfilId: true,
       createdAt: true,
+      perfil: {
+        select: {
+          id: true,
+          nome: true,
+          codigo: true,
+          descricao: true,
+        },
+      },
     },
   });
 
@@ -180,7 +283,7 @@ export const verifyToken = asyncHandler(async (req: AuthenticatedRequest, res: R
 
   // Buscar dados atualizados do usuário
   const user = await prisma.usuario.findUnique({
-    where: { id: req.user.id },
+    where: { id: req.user.userId },
     select: {
       id: true,
       nome: true,
@@ -259,30 +362,6 @@ export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res
   });
 });
 
-// Logout (opcional - para invalidar token no frontend)
-export const logout = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  if (req.user) {
-    // Log de logout
-    const logData: any = {
-      usuarioId: req.user.id,
-      acao: 'LOGOUT',
-      tabela: 'usuarios',
-      registroId: req.user.id,
-    };
-    
-    if (req.ip) logData.ip = req.ip;
-    if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
-    
-    await prisma.logSistema.create({
-      data: logData,
-    });
-  }
-
-  res.json({
-    message: 'Logout realizado com sucesso',
-  });
-});
-
 // Listar usuários (apenas para admins)
 export const getUsers = asyncHandler(async (req: Request, res: Response) => {
   const { page = 1, limit = 10, search, perfil, ativo } = req.query;
@@ -331,5 +410,58 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
       total,
       pages: Math.ceil(total / Number(limit)),
     },
+  });
+});
+
+export const deleteUser = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const userId = parseInt(id);
+
+  if (isNaN(userId)) {
+    throw createValidationError('ID de usuário inválido');
+  }
+
+  // Verificar se o usuário existe
+  const user = await prisma.usuario.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new AppError('Usuário não encontrado', 404);
+  }
+
+  // Não permitir que o usuário delete a si mesmo
+  if (req.user?.userId === userId) {
+    throw new AppError('Não é possível deletar seu próprio usuário', 400);
+  }
+
+  // Soft delete - marcar como inativo
+  await prisma.usuario.update({
+    where: { id: userId },
+    data: { 
+      ativo: false,
+      updatedAt: new Date()
+    },
+  });
+
+  // Log da ação
+  const logData: any = {
+    usuarioId: req.user?.userId,
+    acao: 'DELETE_USER',
+    tabela: 'usuarios',
+    registroId: userId,
+    dadosAntigos: JSON.stringify({ ativo: true }),
+    dadosNovos: JSON.stringify({ ativo: false }),
+  };
+  
+  if (req.ip) logData.ip = req.ip;
+  if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
+  
+  await prisma.logSistema.create({
+    data: logData,
+  });
+
+  res.json({
+    message: 'Usuário removido com sucesso',
   });
 });

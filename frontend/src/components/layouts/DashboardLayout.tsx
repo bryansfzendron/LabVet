@@ -17,8 +17,8 @@ import {
   Search,
   ChevronDown,
 } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
-import { authService } from '@/services/auth.service';
+import { useAuthStore } from '@/stores/auth.store';
+import { AuthService } from '@/services/auth.service';
 import Logo from '@/components/ui/Logo';
 
 // ================================
@@ -96,7 +96,7 @@ const menuItems: MenuItem[] = [
 const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, hasPermission } = useAuthStore();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -113,9 +113,11 @@ const DashboardLayout: React.FC = () => {
   const closeSidebar = () => setSidebarOpen(false);
 
   // Filtrar itens do menu baseado nas permissões
-  const filteredMenuItems = menuItems.filter(item => 
-    !item.requiredRole || authService.hasPermission(item.requiredRole)
-  );
+  const filteredMenuItems = React.useMemo(() => {
+    return menuItems.filter(item => 
+      !item.requiredRole || hasPermission(item.requiredRole)
+    );
+  }, [user, hasPermission]);
 
   // ================================
   // RENDER
@@ -190,15 +192,15 @@ const DashboardLayout: React.FC = () => {
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
               <span className="text-primary-700 font-medium text-sm">
-                {user?.nome.charAt(0).toUpperCase()}
+                {user?.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.nome}
+                {user?.nome || 'Usuário'}
               </p>
               <p className="text-xs text-gray-500 truncate">
-                {user?.role}
+                {user?.role || 'Usuário'}
               </p>
             </div>
           </div>
@@ -246,7 +248,7 @@ const DashboardLayout: React.FC = () => {
                 >
                   <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                     <span className="text-primary-700 font-medium text-sm">
-                      {user?.nome.charAt(0).toUpperCase()}
+                      {user?.nome ? user.nome.charAt(0).toUpperCase() : 'U'}
                     </span>
                   </div>
                   <ChevronDown className="w-4 h-4" />
@@ -256,8 +258,8 @@ const DashboardLayout: React.FC = () => {
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">{user?.nome}</p>
-                      <p className="text-xs text-gray-500">{user?.email}</p>
+                      <p className="text-sm font-medium text-gray-900">{user?.nome || 'Usuário'}</p>
+                      <p className="text-xs text-gray-500">{user?.email || 'Email não informado'}</p>
                     </div>
                     
                     <button

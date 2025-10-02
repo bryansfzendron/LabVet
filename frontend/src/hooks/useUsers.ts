@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { User, UserRole, Permission, CreateUserData, UpdateUserData } from '@/types/user';
+import { User as BackendUserType } from '@/types';
+import { authService } from '@/services/auth.service';
 
-// Mock data - substituir por chamadas reais da API
+// Tipo para dados que vêm do backend via HTTP (datas como strings)
+interface BackendUser extends Omit<BackendUserType, 'created_at' | 'ultimo_login'> {
+  created_at: string;
+  ultimo_login?: string;
+}
+
+// Mock data para roles - isso pode vir do backend depois
 const mockRoles: UserRole[] = [
   {
     id: '1',
@@ -9,7 +17,7 @@ const mockRoles: UserRole[] = [
     descricao: 'Acesso total ao sistema',
     nivel: 1,
     cor: 'red',
-    permissoes: [] // Todas as permissões
+    permissoes: []
   },
   {
     id: '2',
@@ -33,50 +41,7 @@ const mockRoles: UserRole[] = [
     descricao: 'Atendimento e cadastros básicos',
     nivel: 4,
     cor: 'yellow',
-    permissões: []
-  }
-];
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    nome: 'Admin Sistema',
-    email: 'admin@vidalab.com.br',
-    telefone: '(11) 99999-9999',
-    role: mockRoles[0],
-    status: 'ativo',
-    criadoEm: '2024-01-15T10:00:00Z',
-    ultimoLogin: '2024-01-20T14:30:00Z'
-  },
-  {
-    id: '2',
-    nome: 'Dr. João Silva',
-    email: 'joao@vidalab.com.br',
-    telefone: '(11) 98888-8888',
-    role: mockRoles[2],
-    status: 'ativo',
-    criadoEm: '2024-01-16T09:00:00Z',
-    ultimoLogin: '2024-01-20T13:15:00Z'
-  },
-  {
-    id: '3',
-    nome: 'Maria Santos',
-    email: 'maria@vidalab.com.br',
-    telefone: '(11) 97777-7777',
-    role: mockRoles[3],
-    status: 'ativo',
-    criadoEm: '2024-01-17T11:00:00Z',
-    ultimoLogin: '2024-01-20T12:45:00Z'
-  },
-  {
-    id: '4',
-    nome: 'Carlos Oliveira',
-    email: 'carlos@vidalab.com.br',
-    telefone: '(11) 96666-6666',
-    role: mockRoles[1],
-    status: 'inativo',
-    criadoEm: '2024-01-18T08:00:00Z',
-    ultimoLogin: '2024-01-19T16:20:00Z'
+    permissoes: []
   }
 ];
 
@@ -129,40 +94,79 @@ const mockPermissions: Permission[] = [
 ];
 
 export const useUsers = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [roles, setRoles] = useState<UserRole[]>(mockRoles);
-  const [permissions, setPermissions] = useState<Permission[]>(mockPermissions);
+  const [users, setUsers] = useState<User[]>([]);
+  const [roles] = useState<UserRole[]>(mockRoles);
+  const [permissions] = useState<Permission[]>(mockPermissions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simular carregamento inicial
-  useEffect(() => {
+  // Função para mapear perfil do backend para role do frontend
+  const getRoleFromBackendType = (backendRole: string): UserRole => {
+    const roleMapping: Record<string, UserRole> = {
+      'admin': mockRoles[0],
+      'veterinario': mockRoles[2],
+      'atendente': mockRoles[3],
+      'user': mockRoles[3] // user vira Atendente no frontend
+    };
+    return roleMapping[backendRole] || mockRoles[3];
+  };
+
+  // Converter usuário do backend para formato do frontend
+  const convertBackendUser = (backendUser: BackendUser): User => ({
+    id: backendUser.id,
+    nome: backendUser.nome,
+    email: backendUser.email,
+    telefone: '', // Backend não tem telefone ainda
+    role: getRoleFromBackendType(backendUser.role),
+    status: backendUser.ativo ? 'ativo' : 'inativo' as const,
+    criadoEm: backendUser.created_at,
+    ultimoLogin: backendUser.ultimo_login
+  });
+
+  // Carregar usuários do backend
+  const loadUsers = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const usersData = await authService.listUsers();
+      const convertedUsers = usersData.map(convertBackendUser);
+      setUsers(convertedUsers);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');
+      console.error('Erro ao carregar usuários:', err);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
   }, []);
 
   const createUser = async (userData: CreateUserData): Promise<User> => {
     setLoading(true);
     try {
-      // Simular API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const role = roles.find(r => r.id === userData.roleId);
-      if (!role) throw new Error('Role não encontrada');
-
-      const newUser: User = {
-        id: Date.now().toString(),
-        nome: userData.nome,
-        email: userData.email,
-        telefone: userData.telefone,
-        role,
-        status: 'ativo',
-        criadoEm: new Date().toISOString(),
+      // Mapear roleId para role do backend
+      const roleMapping: Record<string, 'admin' | 'veterinario' | 'atendente' | 'user'> = {
+        '1': 'admin',
+        '2': 'veterinario', // Gerente vira veterinario no backend
+        '3': 'veterinario',
+        '4': 'atendente'
       };
 
-      setUsers(prev => [...prev, newUser]);
+      const backendUserData = {
+        nome: userData.nome,
+        email: userData.email,
+        senha: userData.senha,
+        role: roleMapping[userData.roleId] || 'user'
+      };
+
+      const newBackendUser = await authService.register(backendUserData);
+      const newUser = convertBackendUser(newBackendUser);
+      
+      // Recarregar lista de usuários para garantir sincronização
+      await loadUsers();
+      
       return newUser;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar usuário');
@@ -175,23 +179,36 @@ export const useUsers = () => {
   const updateUser = async (userId: string, userData: UpdateUserData): Promise<User> => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      setUsers(prev => prev.map(user => {
-        if (user.id === userId) {
-          const updatedUser = { ...user, ...userData };
-          if (userData.roleId) {
-            const role = roles.find(r => r.id === userData.roleId);
-            if (role) updatedUser.role = role;
-          }
-          return updatedUser;
-        }
-        return user;
-      }));
+      // Mapear roleId para role do backend se fornecido
+      const backendUserData: any = {
+        nome: userData.nome,
+        email: userData.email,
+      };
 
-      const updatedUser = users.find(u => u.id === userId);
-      if (!updatedUser) throw new Error('Usuário não encontrado');
+      if (userData.roleId) {
+        const roleMapping: Record<string, string> = {
+          '1': 'admin',
+          '2': 'veterinario', // Gerente vira veterinario no backend
+          '3': 'veterinario',
+          '4': 'atendente'
+        };
+        backendUserData.role = roleMapping[userData.roleId] || 'user';
+      }
+
+      // Mapear status para ativo (boolean) se fornecido
+      if (userData.status) {
+        backendUserData.ativo = userData.status === 'ativo';
+      }
+
+      // Chamar o endpoint real do backend
+      const updatedBackendUser = await authService.updateUser(userId, backendUserData);
+      const updatedUser = convertBackendUser(updatedBackendUser);
       
+      // Atualizar a lista local
+      setUsers(prev => prev.map(user => 
+        user.id === userId ? updatedUser : user
+      ));
+
       return updatedUser;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar usuário');
@@ -204,10 +221,13 @@ export const useUsers = () => {
   const deleteUser = async (userId: string): Promise<void> => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setUsers(prev => prev.filter(user => user.id !== userId));
+      // Usar o endpoint real de delete do backend
+      await authService.deleteUser(userId);
+      
+      // Recarregar a lista para garantir sincronização
+      await loadUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao excluir usuário');
+      setError(err instanceof Error ? err.message : 'Erro ao inativar usuário');
       throw err;
     } finally {
       setLoading(false);
@@ -217,6 +237,7 @@ export const useUsers = () => {
   const resetPassword = async (userId: string): Promise<string> => {
     setLoading(true);
     try {
+      // TODO: Implementar endpoint de reset de senha no backend
       await new Promise(resolve => setTimeout(resolve, 800));
       const newPassword = Math.random().toString(36).slice(-8);
       return newPassword;

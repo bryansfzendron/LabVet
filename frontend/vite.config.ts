@@ -17,6 +17,7 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
+      '192.168.15.225',
       'labvet.bryanzendron.com.br',
       'linklabvet.bryanzendron.com.br'
     ],
@@ -24,6 +25,7 @@ export default defineConfig({
       origin: [
         'http://localhost:5178',
         'http://127.0.0.1:5178',
+        'http://192.168.15.225:5178',
         'http://labvet.bryanzendron.com.br',
         'https://labvet.bryanzendron.com.br',
       ],
@@ -49,6 +51,7 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
+      '192.168.15.225',
       'labvet.bryanzendron.com.br',
       'linklabvet.bryanzendron.com.br'
     ],
@@ -56,6 +59,7 @@ export default defineConfig({
       origin: [
         'http://localhost:5178',
         'http://127.0.0.1:5178',
+        'http://192.168.15.225:5178',
         'http://labvet.bryanzendron.com.br',
         'https://labvet.bryanzendron.com.br',
         'http://linklabvet.bryanzendron.com.br',

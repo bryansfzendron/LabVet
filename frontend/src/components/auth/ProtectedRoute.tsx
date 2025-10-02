@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+import { useAuthStore } from '@/stores/auth.store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -28,7 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Verificar se o usuário tem a role necessária
-  if (requiredRole && user?.tipo !== requiredRole) {
+  if (requiredRole && user?.role !== requiredRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto p-6">
@@ -58,7 +58,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             <span className="text-sm">
               Permissão necessária: <strong>{requiredRole}</strong>
               <br />
-              Seu nível: <strong>{user?.tipo}</strong>
+              Seu nível: <strong>{user?.role}</strong>
             </span>
           </p>
 
