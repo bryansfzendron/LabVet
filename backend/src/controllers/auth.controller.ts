@@ -316,7 +316,7 @@ export const changePassword = asyncHandler(async (req: AuthenticatedRequest, res
 
   // Buscar usuário com senha
   const user = await prisma.usuario.findUnique({
-    where: { id: req.user.id },
+    where: { id: req.user.userId },
     select: {
       id: true,
       senha: true,
@@ -390,7 +390,15 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
         id: true,
         nome: true,
         email: true,
-        perfil: true,
+        perfilId: true,
+        perfil: {
+          select: {
+            id: true,
+            nome: true,
+            codigo: true,
+            descricao: true,
+          }
+        },
         ativo: true,
         ultimoLogin: true,
         createdAt: true,

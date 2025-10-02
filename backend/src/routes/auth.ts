@@ -18,7 +18,7 @@ const router = Router();
 
 // Rotas existentes
 router.post('/login', login);
-router.post('/register', requireAdmin, register);
+router.post('/register', authenticateToken, requireAdmin, register);
 router.get('/verify', authenticateToken, verifyToken);
 router.post('/change-password', authenticateToken, changePassword);
 router.post('/logout', authenticateToken, logout);

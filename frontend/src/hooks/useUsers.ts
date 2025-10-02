@@ -2,49 +2,27 @@ import { useState, useEffect } from 'react';
 import { User, UserRole, Permission, CreateUserData, UpdateUserData } from '@/types/user';
 import { User as BackendUserType } from '@/types';
 import { authService } from '@/services/auth.service';
+import { perfilService, Perfil } from '@/services/perfil.service';
 
 // Tipo para dados que vêm do backend via HTTP (datas como strings)
-interface BackendUser extends Omit<BackendUserType, 'created_at' | 'ultimo_login'> {
-  created_at: string;
-  ultimo_login?: string;
+interface BackendUser {
+  id: number;
+  nome: string;
+  email: string;
+  perfilId: number;
+  perfil: {
+    id: number;
+    nome: string;
+    codigo: string;
+    descricao: string;
+  };
+  ativo: boolean;
+  ultimoLogin?: string;
+  createdAt: string;
 }
 
 // Mock data para roles - isso pode vir do backend depois
-const mockRoles: UserRole[] = [
-  {
-    id: '1',
-    nome: 'Administrador',
-    descricao: 'Acesso total ao sistema',
-    nivel: 1,
-    cor: 'red',
-    permissoes: []
-  },
-  {
-    id: '2',
-    nome: 'Gerente',
-    descricao: 'Gerenciamento geral exceto configurações críticas',
-    nivel: 2,
-    cor: 'blue',
-    permissoes: []
-  },
-  {
-    id: '3',
-    nome: 'Veterinário',
-    descricao: 'Acesso a exames e laudos',
-    nivel: 3,
-    cor: 'green',
-    permissoes: []
-  },
-  {
-    id: '4',
-    nome: 'Atendente',
-    descricao: 'Atendimento e cadastros básicos',
-    nivel: 4,
-    cor: 'yellow',
-    permissoes: []
-  }
-];
-
+// Permissões padrão do sistema (mantidas para compatibilidade)
 const mockPermissions: Permission[] = [
   // Dashboard
   { id: 'dashboard_view', nome: 'Visualizar Dashboard', descricao: 'Acesso ao painel principal', modulo: 'dashboard', acao: 'read' },
@@ -93,43 +71,99 @@ const mockPermissions: Permission[] = [
   { id: 'config_users', nome: 'Gerenciar Usuários', descricao: 'Administrar usuários', modulo: 'configuracoes', acao: 'manage' },
 ];
 
+/**
+ * Converter perfil do backend para UserRole do frontend
+ */
+const convertPerfilToUserRole = (perfil: Perfil): UserRole => {
+  // Mapear cores baseado no código do perfil
+  const colorMapping: Record<string, string> = {
+    'ADMIN': 'red',
+    'GERENTE': 'blue', 
+    'VETERINARIO': 'green',
+    'TECNICO': 'yellow',
+    'OPERADOR': 'gray'
+  };
+
+  // Mapear nível baseado no código do perfil
+  const levelMapping: Record<string, number> = {
+    'ADMIN': 1,
+    'GERENTE': 2,
+    'VETERINARIO': 3,
+    'TECNICO': 4,
+    'OPERADOR': 5
+  };
+
+  return {
+    id: perfil.id.toString(),
+    nome: perfil.nome,
+    descricao: perfil.descricao || '',
+    nivel: levelMapping[perfil.codigo] || 5,
+    cor: colorMapping[perfil.codigo] || 'gray',
+    permissoes: [] // As permissões podem ser extraídas do campo permissoes do perfil se necessário
+  };
+};
+
 export const useUsers = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [roles] = useState<UserRole[]>(mockRoles);
+  const [roles, setRoles] = useState<UserRole[]>([]);
   const [permissions] = useState<Permission[]>(mockPermissions);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Função para mapear perfil do backend para role do frontend
-  const getRoleFromBackendType = (backendRole: string): UserRole => {
-    const roleMapping: Record<string, UserRole> = {
-      'admin': mockRoles[0],
-      'veterinario': mockRoles[2],
-      'atendente': mockRoles[3],
-      'user': mockRoles[3] // user vira Atendente no frontend
-    };
-    return roleMapping[backendRole] || mockRoles[3];
+  // Carregar perfis do backend
+  const loadRoles = async () => {
+    try {
+      const perfis = await perfilService.getPerfis();
+      const userRoles = perfis.map(convertPerfilToUserRole);
+      setRoles(userRoles);
+    } catch (err) {
+      console.error('Erro ao carregar perfis:', err);
+      setError('Falha ao carregar perfis');
+    }
   };
 
-  // Converter usuário do backend para formato do frontend
-  const convertBackendUser = (backendUser: BackendUser): User => ({
-    id: backendUser.id,
-    nome: backendUser.nome,
-    email: backendUser.email,
-    telefone: '', // Backend não tem telefone ainda
-    role: getRoleFromBackendType(backendUser.role),
-    status: backendUser.ativo ? 'ativo' : 'inativo' as const,
-    criadoEm: backendUser.created_at,
-    ultimoLogin: backendUser.ultimo_login
-  });
+  // Função para mapear perfil do backend para role do frontend
+  const getRoleFromBackendPerfil = (perfilCodigo: string): UserRole | null => {
+    const role = roles.find(r => {
+      // Mapear códigos do backend para nomes dos roles
+      const codeMapping: Record<string, string> = {
+        'ADMIN': 'Administrador',
+        'GERENTE': 'Gerente', 
+        'VETERINARIO': 'Veterinário',
+        'TECNICO': 'Técnico',
+        'OPERADOR': 'Operador'
+      };
+      return r.nome === codeMapping[perfilCodigo];
+    });
+    return role || null;
+  };
+
+
 
   // Carregar usuários do backend
   const loadUsers = async () => {
     setLoading(true);
     try {
       const usersData = await authService.listUsers();
-      const convertedUsers = usersData.map(convertBackendUser);
-      setUsers(convertedUsers);
+      // Converter User[] do backend para User[] do frontend (tipos compatíveis)
+      const frontendUsers: User[] = usersData.map(backendUser => ({
+        id: backendUser.id.toString(),
+        nome: backendUser.nome,
+        email: backendUser.email,
+        telefone: '', // Backend não tem telefone ainda
+        role: getRoleFromBackendPerfil(backendUser.perfil.codigo) || {
+          id: backendUser.perfil.id.toString(),
+          nome: backendUser.perfil.nome,
+          descricao: backendUser.perfil.descricao,
+          nivel: 4,
+          cor: 'gray',
+          permissoes: []
+        },
+        status: backendUser.ativo ? 'ativo' : 'inativo' as const,
+        criadoEm: backendUser.createdAt,
+        ultimoLogin: backendUser.ultimoLogin
+      }));
+      setUsers(frontendUsers);
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar usuários');
@@ -141,33 +175,45 @@ export const useUsers = () => {
 
   useEffect(() => {
     loadUsers();
+    loadRoles();
   }, []);
 
   const createUser = async (userData: CreateUserData): Promise<User> => {
     setLoading(true);
     try {
-      // Mapear roleId para role do backend
-      const roleMapping: Record<string, 'admin' | 'veterinario' | 'atendente' | 'user'> = {
-        '1': 'admin',
-        '2': 'veterinario', // Gerente vira veterinario no backend
-        '3': 'veterinario',
-        '4': 'atendente'
-      };
+      // Encontrar o perfil pelo roleId
+      const selectedRole = roles.find(r => r.id === userData.roleId);
+      if (!selectedRole) {
+        throw new Error('Perfil não encontrado');
+      }
+
+      // Buscar o perfil no backend pelo nome para obter o ID
+      const perfis = await perfilService.getPerfis();
+      const perfilBackend = perfis.find((p: Perfil) => p.nome === selectedRole.nome);
+      
+      if (!perfilBackend) {
+        throw new Error('Perfil não encontrado no backend');
+      }
 
       const backendUserData = {
         nome: userData.nome,
         email: userData.email,
         senha: userData.senha,
-        role: roleMapping[userData.roleId] || 'user'
+        perfilId: perfilBackend.id
       };
 
-      const newBackendUser = await authService.register(backendUserData);
-      const newUser = convertBackendUser(newBackendUser);
+      await authService.register(backendUserData);
       
       // Recarregar lista de usuários para garantir sincronização
       await loadUsers();
       
-      return newUser;
+      // Retornar o usuário criado da lista atualizada
+      const createdUser = users.find(u => u.email === userData.email);
+      if (!createdUser) {
+        throw new Error('Usuário criado mas não encontrado na lista');
+      }
+      
+      return createdUser;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar usuário');
       throw err;
@@ -201,13 +247,16 @@ export const useUsers = () => {
       }
 
       // Chamar o endpoint real do backend
-      const updatedBackendUser = await authService.updateUser(userId, backendUserData);
-      const updatedUser = convertBackendUser(updatedBackendUser);
+      await authService.updateUser(userId, backendUserData);
       
-      // Atualizar a lista local
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? updatedUser : user
-      ));
+      // Recarregar lista de usuários para garantir sincronização
+      await loadUsers();
+      
+      // Retornar o usuário atualizado da lista
+      const updatedUser = users.find(u => u.id === userId);
+      if (!updatedUser) {
+        throw new Error('Usuário atualizado mas não encontrado na lista');
+      }
 
       return updatedUser;
     } catch (err) {

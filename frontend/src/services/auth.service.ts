@@ -99,7 +99,7 @@ export class AuthService {
     nome: string;
     email: string;
     senha: string;
-    perfil: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR';
+    perfilId: number;
   }): Promise<User> {
     return await post<User>('/auth/register', userData);
   }

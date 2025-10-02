@@ -44,6 +44,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   // Estados do formulário
   const [formData, setFormData] = useState<CreateUserData>({
@@ -70,6 +71,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (formData.senha.length < 6) {
+      alert('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+    
     if (formData.senha !== formData.confirmarSenha) {
       alert('As senhas não coincidem');
       return;
@@ -77,6 +83,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
 
     try {
       await createUser(formData);
+      
+      // Fechar modal e limpar formulário
       setShowCreateModal(false);
       setFormData({
         nome: '',
@@ -86,9 +94,14 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
         senha: '',
         confirmarSenha: ''
       });
-      alert('Usuário criado com sucesso!');
+      
+      // Mostrar mensagem de sucesso
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+      
     } catch (err) {
       console.error('Erro ao criar usuário:', err);
+      alert('Erro ao criar usuário. Tente novamente.');
     }
   };
 
@@ -187,6 +200,23 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
           Novo Usuário
         </button>
       </div>
+
+      {/* Notificação de Sucesso */}
+      {showSuccessMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center">
+          <div className="flex-shrink-0">
+            <UserCheck className="h-5 w-5 text-green-600" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-green-800">
+              Usuário criado com sucesso!
+            </p>
+            <p className="text-sm text-green-600 mt-1">
+              O novo usuário foi adicionado ao sistema e pode fazer login.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Filtros */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -413,15 +443,21 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Senha
+                  Senha *
                 </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     required
+                    minLength={6}
                     value={formData.senha}
                     onChange={(e) => setFormData({...formData, senha: e.target.value})}
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 ${
+                      formData.senha.length > 0 && formData.senha.length < 6 
+                        ? 'border-red-300 focus:ring-red-500' 
+                        : 'border-gray-300 focus:ring-blue-500'
+                    }`}
+                    placeholder="Digite sua senha"
                   />
                   <button
                     type="button"
@@ -431,6 +467,16 @@ const UserManagement: React.FC<UserManagementProps> = ({ onClose }) => {
                     {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                   </button>
                 </div>
+                <p className={`text-xs mt-1 ${
+                  formData.senha.length > 0 && formData.senha.length < 6 
+                    ? 'text-red-600' 
+                    : 'text-gray-500'
+                }`}>
+                  {formData.senha.length > 0 && formData.senha.length < 6 
+                    ? `Senha muito curta (${formData.senha.length}/6 caracteres mínimos)` 
+                    : 'A senha deve ter pelo menos 6 caracteres'
+                  }
+                </p>
               </div>
 
               <div>

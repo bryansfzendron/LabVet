@@ -12,31 +12,32 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // Middleware de autenticação
-export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    res.status(401).json({ error: 'Token de acesso requerido' });
-    return;
+    return res.status(401).json({ error: 'Token de acesso requerido' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
     if (err) {
-      res.status(401).json({ error: 'Token inválido' });
-      return;
+      return res.status(403).json({ error: 'Token inválido' });
     }
-    req.user = user;
+    
+    console.log('🔍 Token decodificado:', decoded);
+    req.user = decoded;
     next();
   });
 };
 
 // Middleware para verificar se é admin
 export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user || req.user.perfil.toUpperCase() !== 'ADMIN') {
+  if (!req.user || req.user.perfil?.toUpperCase() !== 'ADMIN') {
     return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
   }
-  return next();
+  
+  next();
 };
 
 // Middleware para verificar se é veterinário ou admin
