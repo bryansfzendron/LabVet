@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import prisma from '../config/database';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'labvet-secret-key-2024';
 
@@ -12,7 +13,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // Middleware de autenticação
-export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const authenticateToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -21,16 +22,40 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
     return;
   }
 
-  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
-    if (err) {
-      res.status(403).json({ error: 'Token inválido' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    // Verificar se a sessão está ativa no banco de dados
+    const activeSession = await prisma.sessaoAtiva.findFirst({
+      where: {
+        token: token,
+        ativa: true,
+        usuarioId: decoded.userId
+      }
+    });
+
+    if (!activeSession) {
+      res.status(401).json({ error: 'Sessão inválida ou expirada' });
       return;
     }
+
+    // Atualizar última atividade da sessão
+    await prisma.sessaoAtiva.update({
+      where: {
+        id: activeSession.id
+      },
+      data: {
+        ultimaAtividade: new Date()
+      }
+    });
     
     console.log('🔍 Token decodificado:', decoded);
     req.user = decoded;
     next();
-  });
+  } catch (err) {
+    res.status(403).json({ error: 'Token inválido' });
+    return;
+  }
 };
 
 // Middleware para verificar se é admin

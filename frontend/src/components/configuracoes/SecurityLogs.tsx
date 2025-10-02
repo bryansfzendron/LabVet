@@ -10,10 +10,12 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuthStore } from '@/stores/auth.store';
 import { useSecurityLogsConditional } from '@/hooks/useSecurityLogsConditional';
+import { toast } from 'react-hot-toast';
 
 const SecurityLogs: React.FC = () => {
   const { user: currentUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState<'logs' | 'sessions' | 'history'>('logs');
+  const [loadingSessionId, setLoadingSessionId] = useState<string | null>(null);
   
   // Verificar se o usuário é admin
   const isAdmin = currentUser?.perfil?.permissoes?.admin;
@@ -67,15 +69,44 @@ const SecurityLogs: React.FC = () => {
     }
   };
 
-  const handleEncerrarSessao = async (sessionId: string) => {
-    if (!isAdmin) return;
+  const handleEncerrarSessao = async (sessionId: string, nomeUsuario: string) => {
+    if (!isAdmin) {
+      toast.error('Você não tem permissão para encerrar sessões');
+      return;
+    }
+
+    // Confirmação antes de encerrar
+    const confirmacao = window.confirm(
+      `Tem certeza que deseja encerrar a sessão do usuário "${nomeUsuario}"?\n\nEsta ação não pode ser desfeita e o usuário será desconectado imediatamente.`
+    );
+
+    if (!confirmacao) {
+      return;
+    }
+    
+    setLoadingSessionId(sessionId);
     
     try {
       await LogsService.encerrarSessao(sessionId);
+      toast.success(`Sessão do usuário "${nomeUsuario}" encerrada com sucesso!`);
+      
       // Recarregar sessões após encerrar
       await loadData('sessions', filtros);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao encerrar sessão:', error);
+      
+      // Tratamento específico de erros
+      if (error?.response?.status === 404) {
+        toast.error('Sessão não encontrada ou já foi encerrada');
+      } else if (error?.response?.status === 403) {
+        toast.error('Você não tem permissão para encerrar esta sessão');
+      } else if (error?.response?.status >= 500) {
+        toast.error('Erro interno do servidor. Tente novamente em alguns instantes');
+      } else {
+        toast.error('Erro ao encerrar sessão. Verifique sua conexão e tente novamente');
+      }
+    } finally {
+      setLoadingSessionId(null);
     }
   };
 
@@ -292,10 +323,31 @@ const SecurityLogs: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => handleEncerrarSessao(sessao.id)}
-                      className="text-red-600 hover:text-red-900"
+                      onClick={() => handleEncerrarSessao(sessao.id, sessao.nomeUsuario)}
+                      disabled={loadingSessionId === sessao.id || !sessao.ativo}
+                      className={`${
+                        loadingSessionId === sessao.id
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : !sessao.ativo
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-red-600 hover:text-red-900 hover:bg-red-50'
+                      } px-2 py-1 rounded transition-colors duration-200`}
+                      title={
+                        !sessao.ativo 
+                          ? 'Sessão já está inativa' 
+                          : loadingSessionId === sessao.id 
+                          ? 'Encerrando sessão...' 
+                          : 'Encerrar sessão'
+                      }
                     >
-                      Encerrar
+                      {loadingSessionId === sessao.id ? (
+                        <div className="flex items-center space-x-1">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400"></div>
+                          <span>Encerrando...</span>
+                        </div>
+                      ) : (
+                        'Encerrar'
+                      )}
                     </button>
                   </td>
                 </tr>
