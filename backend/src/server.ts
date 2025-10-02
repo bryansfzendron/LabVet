@@ -34,13 +34,15 @@ const PORT = process.env.PORT || 3001;
 // MIDDLEWARES DE SEGURANÇA
 // ================================
 
-// Rate limiting
+// Rate limiting - configuração mais permissiva para desenvolvimento
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 60, // máximo 60 requests por IP por minuto
   message: {
-    error: 'Muitas tentativas. Tente novamente em 15 minutos.',
+    error: 'Muitas tentativas. Tente novamente em alguns minutos.',
   },
+  standardHeaders: true, // Retorna rate limit info nos headers `RateLimit-*`
+  legacyHeaders: false, // Desabilita headers `X-RateLimit-*`
 });
 
 app.use(limiter);

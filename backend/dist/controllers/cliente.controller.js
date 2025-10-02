@@ -8,7 +8,7 @@ const getClientes = async (req, res) => {
         const { page = 1, limit = 10, search, ativo = true } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
         const where = {
-            ativo: ativo === 'true' ? 'S' : 'N'
+            ativo: (ativo === true || ativo === 'true') ? 'S' : 'N'
         };
         if (search) {
             where.OR = [
