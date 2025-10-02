@@ -57,6 +57,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5178',
     'http://192.168.15.225:5178',
+    'http://192.168.15.225:3001',
     'https://labvet.bryanzendron.com.br',
     'http://labvet.bryanzendron.com.br'
   ],
@@ -122,11 +123,13 @@ app.use(errorHandler);
 // INICIALIZAÇÃO DO SERVIDOR
 // ================================
 
-const server = app.listen(PORT, () => {
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`🚀 Servidor LabVet rodando na porta ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 Health check (IP): http://192.168.15.225:${PORT}/health`);
   console.log(`📚 API Base URL: http://localhost:${PORT}/api`);
+  console.log(`📚 API Base URL (IP): http://192.168.15.225:${PORT}/api`);
 });
 
 // Graceful shutdown

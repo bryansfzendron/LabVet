@@ -1,4 +1,3 @@
-import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 // Layouts
@@ -9,7 +8,6 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 // Pages
-import LoginPage from '@/pages/auth/LoginPage';
 import TestLoginPage from '@/pages/TestLoginPage';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 
@@ -141,7 +139,7 @@ export const router = createBrowserRouter([
       {
         path: 'configuracoes',
         element: (
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredPermission="configuracoes">
             <ConfiguracoesPage />
           </ProtectedRoute>
         ),

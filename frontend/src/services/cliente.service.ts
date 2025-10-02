@@ -16,8 +16,8 @@ const mockClientes: Cliente[] = [
     uf: 'SP',
     cep: '01234-567',
     ativo: true,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
+    criadoEm: '2024-01-15T10:00:00Z',
+    atualizadoEm: '2024-01-15T10:00:00Z',
   },
   {
     id: 2,
@@ -35,8 +35,8 @@ const mockClientes: Cliente[] = [
     celular: '(11) 99999-2222',
     contato: 'Maria Santos',
     ativo: true,
-    createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2024-02-10'),
+    criadoEm: '2024-02-10T10:00:00Z',
+    atualizadoEm: '2024-02-10T10:00:00Z',
   },
   {
     id: 3,
@@ -52,8 +52,8 @@ const mockClientes: Cliente[] = [
     cep: '05433-000',
     observacoes: 'Cliente VIP - atendimento prioritário',
     ativo: true,
-    createdAt: new Date('2024-03-05'),
-    updatedAt: new Date('2024-03-05'),
+    criadoEm: '2024-03-05T10:00:00Z',
+    atualizadoEm: '2024-03-05T10:00:00Z',
   },
   {
     id: 4,
@@ -69,8 +69,8 @@ const mockClientes: Cliente[] = [
     cep: '01302-000',
     restricao: 'Pagamento apenas à vista',
     ativo: false,
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-04-01'),
+    criadoEm: '2024-01-20T10:00:00Z',
+    atualizadoEm: '2024-04-01T10:00:00Z',
   },
 ];
 
@@ -154,7 +154,7 @@ class ClienteService {
     return {
       data: paginatedClientes,
       pagination: {
-        currentPage: page,
+        page: page,
         totalPages: Math.ceil(filteredClientes.length / limit),
         total: filteredClientes.length,
         limit: limit,
@@ -228,8 +228,8 @@ class ClienteService {
         ...data,
         id: nextId++,
         ativo: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        criadoEm: new Date().toISOString(),
+        atualizadoEm: new Date().toISOString(),
       };
       mockClientes.push(novoCliente);
       return novoCliente;
@@ -267,7 +267,7 @@ class ClienteService {
       mockClientes[index] = {
         ...mockClientes[index],
         ...data,
-        updatedAt: new Date(),
+        atualizadoEm: new Date().toISOString(),
       };
       
       return mockClientes[index];
@@ -300,7 +300,7 @@ class ClienteService {
       const cliente = mockClientes.find(c => c.id === id);
       if (cliente) {
         cliente.ativo = false;
-        cliente.updatedAt = new Date();
+        cliente.atualizadoEm = new Date().toISOString();
       }
       return;
     }
@@ -329,7 +329,7 @@ class ClienteService {
       const cliente = mockClientes.find(c => c.id === id);
       if (cliente) {
         cliente.ativo = true;
-        cliente.updatedAt = new Date();
+        cliente.atualizadoEm = new Date().toISOString();
       }
       return;
     }

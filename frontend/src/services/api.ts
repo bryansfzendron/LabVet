@@ -96,11 +96,11 @@ api.interceptors.response.use(
         break;
 
       case 409:
-        toast.error(apiError.error || 'Conflito de dados.');
+        toast.error(apiError.message || 'Conflito de dados.');
         break;
 
       case 422:
-        toast.error(apiError.error || 'Dados inválidos.');
+        toast.error(apiError.message || 'Dados inválidos.');
         break;
 
       case 429:
@@ -119,7 +119,7 @@ api.interceptors.response.use(
         if (error.code === 'NETWORK_ERROR' || !error.response) {
           toast.error('Erro de conexão. Verifique sua internet.');
         } else {
-          toast.error(apiError.error || 'Erro inesperado.');
+          toast.error(apiError.message || 'Erro inesperado.');
         }
     }
 
@@ -246,7 +246,7 @@ export const uploadFile = async <T>(
     },
   });
 
-  return response.data.data;
+  return response.data.data as T;
 };
 
 /**

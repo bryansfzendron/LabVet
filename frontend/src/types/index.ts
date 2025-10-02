@@ -2,12 +2,27 @@
 // TIPOS DE AUTENTICAÇÃO
 // ================================
 
+export interface PerfilPermissoes {
+  admin?: boolean;
+  configuracoes?: boolean;
+  usuarios?: boolean;
+  relatorios?: boolean;
+  pedidos?: boolean;
+  laudos?: boolean;
+  clientes?: boolean;
+  animais?: boolean;
+  exames?: boolean;
+  financeiro?: boolean;
+  agenda?: boolean;
+  dashboard?: boolean;
+}
+
 export interface Perfil {
   id: number;
   nome: string;
   codigo: 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR';
   descricao: string;
-  permissoes: any;
+  permissoes: PerfilPermissoes;
 }
 
 export interface User {
@@ -15,7 +30,6 @@ export interface User {
   nome: string;
   email: string;
   perfil: Perfil;
-  role: 'admin' | 'veterinario' | 'atendente' | 'user';
   ativo: boolean;
   ultimoLogin?: string;
   createdAt: string;

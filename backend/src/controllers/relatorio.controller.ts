@@ -352,7 +352,7 @@ export const getExamesPorTipo = async (req: Request, res: Response) => {
       if (exame && exame.nome) {
         labels.push(exame.nome);
         data.push(item._count.id);
-        backgroundColor.push(cores[index % cores.length]);
+        backgroundColor.push(cores[index % cores.length] || '#FF6384');
       }
     });
 

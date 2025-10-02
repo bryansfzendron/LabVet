@@ -1,4 +1,4 @@
-import { get, post, patch, put, del, setAuthToken, clearAuth } from './api';
+import { get, post, patch, put, setAuthToken, clearAuth } from './api';
 import { User, LoginRequest, LoginResponse } from '@/types';
 
 // ================================
@@ -6,50 +6,21 @@ import { User, LoginRequest, LoginResponse } from '@/types';
 // ================================
 
 export class AuthService {
-  /**
-   * Mapear perfil do backend para role do frontend
-   */
-  private static mapPerfilToRole(perfil: string): User['role'] {
-    const mapping: Record<string, User['role']> = {
-      'ADMIN': 'admin',
-      'GERENTE': 'admin', // Gerente também tem privilégios de admin
-      'VETERINARIO': 'veterinario',
-      'TECNICO': 'atendente',
-      'OPERADOR': 'user'
-    };
-    return mapping[perfil] || 'user';
-  }
 
   /**
-   * Fazer login do usuário
+   * Fazer login
    */
   static async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await post<any>('/auth/login', credentials);
+    const response = await post<LoginResponse>('/auth/login', credentials);
     
-    // Mapear dados do usuário do backend para frontend
-    const mappedUser: User = {
-      id: response.user.id,
-      nome: response.user.nome,
-      email: response.user.email,
-      perfil: response.user.perfil,
-      role: this.mapPerfilToRole(response.user.perfil),
-      ativo: response.user.ativo,
-      ultimoLogin: response.user.ultimoLogin,
-      createdAt: response.user.createdAt,
-      updatedAt: response.user.updatedAt
-    };
+    // Salvar dados no localStorage (sem modificar o usuário)
+    localStorage.setItem('labvet_token', response.token);
+    localStorage.setItem('labvet_user', JSON.stringify(response.user));
     
-    const loginResponse: LoginResponse = {
-      message: response.message,
-      user: mappedUser,
-      token: response.token
-    };
+    // Configurar token para próximas requisições
+    setAuthToken(response.token);
     
-    // Salvar token e dados do usuário
-    setAuthToken(loginResponse.token);
-    localStorage.setItem('labvet_user', JSON.stringify(loginResponse.user));
-    
-    return loginResponse;
+    return response;
   }
 
   /**
@@ -118,17 +89,13 @@ export class AuthService {
   static async updateUser(userId: string, userData: {
     nome?: string;
     email?: string;
-    role?: string;
+    perfilId?: number;
+    ativo?: boolean;
   }): Promise<User> {
     return await put<User>(`/auth/users/${userId}`, userData);
   }
 
-  /**
-   * Deletar usuário (apenas admin) - Soft delete
-   */
-  static async deleteUser(userId: string): Promise<void> {
-    await del(`/auth/users/${userId}`);
-  }
+
 
   /**
    * Obter usuário atual do localStorage
@@ -156,22 +123,11 @@ export class AuthService {
   /**
    * Verificar se o usuário tem permissão específica
    */
-  static hasPermission(requiredRole: User['role']): boolean {
+  static hasPermission(permission: keyof User['perfil']['permissoes']): boolean {
     const user = this.getCurrentUser();
     if (!user) return false;
 
-    // Hierarquia de permissões: admin > veterinario > atendente > user
-    const roleHierarchy = {
-      'admin': 4,
-      'veterinario': 3,
-      'atendente': 2,
-      'user': 1
-    };
-
-    const userLevel = roleHierarchy[user.role];
-    const requiredLevel = roleHierarchy[requiredRole];
-
-    return userLevel >= requiredLevel;
+    return !!user.perfil.permissoes[permission];
   }
 
   /**
@@ -182,30 +138,80 @@ export class AuthService {
   }
 
   /**
-   * Verificar se o usuário é veterinário ou superior
+   * Verificar se o usuário pode gerenciar usuários
    */
-  static isVeterinarian(): boolean {
-    return this.hasPermission('veterinario');
+  static canManageUsers(): boolean {
+    return this.hasPermission('usuarios');
   }
 
   /**
-   * Verificar se o usuário é atendente ou superior
+   * Verificar se o usuário pode acessar relatórios
    */
-  static isAtendente(): boolean {
-    return this.hasPermission('atendente');
+  static canAccessReports(): boolean {
+    return this.hasPermission('relatorios');
   }
 
   /**
-   * Obter nome amigável do tipo de usuário
+   * Verificar se o usuário pode gerenciar pedidos
    */
-  static getRoleDisplayName(role: User['role']): string {
-    const names = {
-      'admin': 'Administrador',
-      'veterinario': 'Veterinário',
-      'atendente': 'Atendente',
-      'user': 'Usuário'
-    };
-    return names[role] || role;
+  static canManageOrders(): boolean {
+    return this.hasPermission('pedidos');
+  }
+
+  /**
+   * Verificar se o usuário pode gerenciar laudos
+   */
+  static canManageReports(): boolean {
+    return this.hasPermission('laudos');
+  }
+
+  /**
+   * Verificar se o usuário pode gerenciar clientes
+   */
+  static canManageClients(): boolean {
+    return this.hasPermission('clientes');
+  }
+
+  /**
+   * Verificar se o usuário pode gerenciar animais
+   */
+  static canManageAnimals(): boolean {
+    return this.hasPermission('animais');
+  }
+
+  /**
+   * Verificar se o usuário pode gerenciar exames
+   */
+  static canManageExams(): boolean {
+    return this.hasPermission('exames');
+  }
+
+  /**
+   * Verificar se o usuário pode acessar financeiro
+   */
+  static canAccessFinancial(): boolean {
+    return this.hasPermission('financeiro');
+  }
+
+  /**
+   * Verificar se o usuário pode gerenciar agenda
+   */
+  static canManageSchedule(): boolean {
+    return this.hasPermission('agenda');
+  }
+
+  /**
+   * Verificar se o usuário pode acessar configurações
+   */
+  static canAccessSettings(): boolean {
+    return this.hasPermission('configuracoes');
+  }
+
+  /**
+   * Obter nome amigável do perfil
+   */
+  static getPerfilDisplayName(perfil: User['perfil']): string {
+    return perfil.nome;
   }
 
   /**

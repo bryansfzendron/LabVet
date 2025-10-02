@@ -309,27 +309,35 @@ export const useCpfCnpjValidation = (initialValue: string = '') => {
     CpfCnpjValidator.validateDocument(initialValue)
   );
 
-  const handleChange = (newValue: string) => {
+  // Sincronizar com mudanças no valor inicial
+  React.useEffect(() => {
+    if (initialValue !== value) {
+      setValue(initialValue);
+      setValidation(CpfCnpjValidator.validateDocument(initialValue));
+    }
+  }, [initialValue]);
+
+  const handleChange = React.useCallback((newValue: string) => {
     const formatted = CpfCnpjValidator.formatDocument(newValue);
     const validationResult = CpfCnpjValidator.validateDocument(newValue);
     
     setValue(formatted);
     setValidation(validationResult);
-  };
+  }, []);
 
-  const reset = () => {
+  const reset = React.useCallback(() => {
     setValue('');
     setValidation(CpfCnpjValidator.validateDocument(''));
-  };
+  }, []);
 
-  const generateValid = (type: 'CPF' | 'CNPJ') => {
+  const generateValid = React.useCallback((type: 'CPF' | 'CNPJ') => {
     const generated = type === 'CPF' 
       ? CpfCnpjValidator.generateValidCPF()
       : CpfCnpjValidator.generateValidCNPJ();
     
     setValue(generated);
     setValidation(CpfCnpjValidator.validateDocument(generated));
-  };
+  }, []);
 
   return {
     value,

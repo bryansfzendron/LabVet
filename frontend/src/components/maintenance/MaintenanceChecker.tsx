@@ -38,10 +38,7 @@ const MaintenanceChecker: React.FC<MaintenanceCheckerProps> = ({ children }) => 
     }
     
     // Para outras rotas, permitir acesso apenas para administradores
-    const isAdmin = user && (
-      user.perfil === 'ADMIN' ||
-      user.role === 'admin'
-    );
+    const isAdmin = user && user.perfil?.permissoes?.admin;
     
     if (!isAdmin) {
       return <MaintenancePage />;

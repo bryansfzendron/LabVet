@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Cliente, CreateClienteRequest, UpdateClienteRequest } from '../../types/cliente';
+import { Cliente, CreateClienteRequest, UpdateClienteRequest } from '@/types';
 import { clienteService } from '../../services/cliente.service';
 import CpfCnpjInput from '../ui/CpfCnpjInput';
-import { Save, X, User, Building, Mail, Phone, MapPin, FileText } from 'lucide-react';
+import { Save, X, User, Mail, Phone, MapPin, FileText } from 'lucide-react';
 
 interface ClienteFormProps {
   cliente?: Cliente;
@@ -78,6 +78,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ cliente, onSave, onCancel }) 
       
       if (cliente?.id) {
         const updateData: UpdateClienteRequest = {
+          id: cliente.id,
           nome: formData.nome,
           email: formData.email,
           telefone: formData.telefone,
@@ -85,7 +86,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ cliente, onSave, onCancel }) 
           endereco: formData.endereco,
           observacoes: formData.observacoes
         };
-        savedCliente = await clienteService.update(cliente.id, updateData);
+        savedCliente = await clienteService.atualizar(cliente.id, updateData);
       } else {
         const createData: CreateClienteRequest = {
           nome: formData.nome,
@@ -95,7 +96,7 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ cliente, onSave, onCancel }) 
           endereco: formData.endereco,
           observacoes: formData.observacoes
         };
-        savedCliente = await clienteService.create(createData);
+        savedCliente = await clienteService.criar(createData);
       }
       
       onSave(savedCliente);
@@ -181,17 +182,11 @@ const ClienteForm: React.FC<ClienteFormProps> = ({ cliente, onSave, onCancel }) 
         {/* CPF/CNPJ com validação avançada */}
         <div>
           <CpfCnpjInput
-            label={
-              <span className="flex items-center">
-                <Building size={16} className="mr-1" />
-                CPF/CNPJ *
-              </span>
-            }
+            label="CPF/CNPJ *"
             value={formData.cpfCnpj}
             onChange={handleCpfCnpjChange}
             error={errors.cpfCnpj}
             disabled={isLoading}
-            showGenerateButton={!cliente?.id} // Só mostra botão gerar em novos clientes
             required
           />
         </div>

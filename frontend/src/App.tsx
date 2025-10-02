@@ -54,7 +54,6 @@ import ConfiguracoesPage from '@/pages/configuracoes/ConfiguracoesPage';
 import ConfigTest from '@/pages/test/ConfigTest';
 
 // Components
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 // ================================

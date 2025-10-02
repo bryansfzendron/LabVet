@@ -116,18 +116,24 @@ export const createAnimal = async (req: Request, res: Response) => {
       });
     }
 
+    // Converter clienteId para número se for string
+    const clienteIdNumber = typeof clienteId === 'string' ? parseInt(clienteId, 10) : clienteId;
+
     // Verificar se cliente existe
     const clienteExiste = await prisma.cliente.findUnique({
-      where: { id: clienteId }
+      where: { id: clienteIdNumber }
     });
 
     if (!clienteExiste) {
       return res.status(400).json({ error: 'Cliente não encontrado' });
     }
 
+    // Converter especieId para número se for string
+    const especieIdNumber = typeof especieId === 'string' ? parseInt(especieId, 10) : especieId;
+
     // Verificar se espécie existe
     const especieExiste = await prisma.especie.findUnique({
-      where: { id: especieId }
+      where: { id: especieIdNumber }
     });
 
     if (!especieExiste) {
@@ -137,14 +143,14 @@ export const createAnimal = async (req: Request, res: Response) => {
     const animal = await prisma.animal.create({
       data: {
         nome,
-        especieId,
+        especieId: especieIdNumber,
         raca: raca || null,
         sexo,
         idade: idade || null,
         peso: peso || null,
         cor: cor || null,
         observacoes: observacoes || null,
-        clienteId
+        clienteId: clienteIdNumber
       },
       include: {
         cliente: {
@@ -240,6 +246,11 @@ export const updateAnimal = async (req: Request, res: Response) => {
 
     if (!animalExistente) {
       return res.status(404).json({ error: 'Animal não encontrado' });
+    }
+
+    // Validar campo sexo se estiver sendo atualizado
+    if (updateData.sexo && !['MACHO', 'FEMEA', 'INDEFINIDO'].includes(updateData.sexo)) {
+      return res.status(400).json({ error: 'Valor inválido para sexo. Use: MACHO, FEMEA ou INDEFINIDO' });
     }
 
     // Se está alterando a espécie, verificar se existe

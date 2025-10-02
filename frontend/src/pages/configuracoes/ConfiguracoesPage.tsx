@@ -5,24 +5,24 @@ import {
   Users, 
   Bell, 
   Shield, 
-  Database, 
   Mail, 
   Save,
   Eye,
   EyeOff,
   TestTube,
-  FileText,
   DollarSign,
   Wrench,
   AlertTriangle,
   Clock,
   HardDrive,
-  Key,
   UserCheck
 } from 'lucide-react';
 import { useConfigStore } from '@/stores/configStore';
+import { useAuthStore } from '@/stores/auth.store';
 import UserManagement from '@/components/configuracoes/UserManagement';
 import SecurityLogs from '@/components/configuracoes/SecurityLogs';
+import PermissionsManagement from '@/components/configuracoes/PermissionsManagement';
+import ProfileManagement from '@/components/configuracoes/ProfileManagement';
 
 interface ConfigSection {
   id: string;
@@ -36,11 +36,10 @@ const ConfiguracoesPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // Store e hooks
+  const { user: currentUser } = useAuthStore();
   const {
     config,
     isLoading,
-    error,
-    hasUnsavedChanges,
     updateEmpresa,
     updateSistema,
     updateNotificacoes,
@@ -50,6 +49,9 @@ const ConfiguracoesPage: React.FC = () => {
     saveConfig,
     clearError,
   } = useConfigStore();
+
+  // Verificar se o usuário tem permissão para acessar configurações
+  const canAccessSettings = currentUser?.perfil?.permissoes?.admin || currentUser?.perfil?.permissoes?.configuracoes;
 
   const configSections: ConfigSection[] = [
     {
@@ -66,9 +68,21 @@ const ConfiguracoesPage: React.FC = () => {
     },
     {
       id: 'usuarios',
-      title: 'Usuários e Permissões',
+      title: 'Usuários',
       icon: Users,
-      description: 'Gerenciar usuários e níveis de acesso'
+      description: 'Gerenciar usuários do sistema'
+    },
+    {
+      id: 'permissoes',
+      title: 'Permissões',
+      icon: Shield,
+      description: 'Configurar permissões de acesso por perfil'
+    },
+    {
+      id: 'perfis',
+      title: 'Perfis',
+      icon: UserCheck,
+      description: 'Gerenciar perfis de usuário do sistema'
     },
     {
       id: 'exames',
@@ -807,6 +821,18 @@ const ConfiguracoesPage: React.FC = () => {
     </div>
   );
 
+  const renderPermissoesSection = () => (
+    <div className="space-y-6">
+      <PermissionsManagement />
+    </div>
+  );
+
+  const renderPerfisSection = () => (
+    <div className="space-y-6">
+      <ProfileManagement />
+    </div>
+  );
+
   const renderContent = () => {
     switch (activeSection) {
       case 'empresa':
@@ -823,12 +849,31 @@ const ConfiguracoesPage: React.FC = () => {
         return renderSistemaSection();
       case 'usuarios':
         return renderUsuariosSection();
+      case 'permissoes':
+        return renderPermissoesSection();
+      case 'perfis':
+        return renderPerfisSection();
       case 'seguranca':
         return renderSegurancaSection();
       default:
         return renderEmpresaSection();
     }
   };
+
+  // Verificar se o usuário tem permissão para acessar configurações
+  if (!canAccessSettings) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Acesso Restrito</h3>
+          <p className="text-gray-600">
+            Você não tem permissão para acessar as configurações do sistema.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

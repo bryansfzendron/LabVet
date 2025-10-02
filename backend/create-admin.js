@@ -32,7 +32,7 @@ async function createAdmin() {
         nome: 'Administrador',
         email: 'admin@labvet.com',
         senha: hashedPassword,
-        perfil: 'ADMIN',
+        perfilId: 1, // ID do perfil Administrador
         ativo: true
         // createdAt e updatedAt são automáticos
       }

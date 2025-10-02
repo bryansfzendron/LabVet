@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { toast } from 'react-hot-toast';
@@ -226,7 +227,7 @@ export const useConfigStore = create<ConfigStore>()(
           config: defaultConfig,
           hasUnsavedChanges: true,
         });
-        toast.info('Configurações resetadas para o padrão');
+        toast.success('Configurações resetadas para o padrão');
       },
 
       clearError: () => {
@@ -255,11 +256,6 @@ export const useConfigStore = create<ConfigStore>()(
           },
           hasUnsavedChanges: true,
         }));
-        
-        // Aplicar tema imediatamente
-        if (data.tema) {
-          applyTheme(data.tema);
-        }
       },
 
       updateNotificacoes: (data: Partial<NotificacoesConfig>) => {
@@ -306,14 +302,6 @@ export const useConfigStore = create<ConfigStore>()(
       // GETTERS
       // ================================
 
-      getTheme: () => {
-        return get().config.sistema.tema;
-      },
-
-      getLanguage: () => {
-        return get().config.sistema.idioma;
-      },
-
       getTimezone: () => {
         return get().config.sistema.timezone;
       },
@@ -332,47 +320,14 @@ export const useConfigStore = create<ConfigStore>()(
 // ================================
 
 /**
- * Aplicar tema ao documento
- */
-function applyTheme(theme: 'light' | 'dark' | 'auto') {
-  const root = document.documentElement;
-  
-  if (theme === 'auto') {
-    // Detectar preferência do sistema
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    theme = prefersDark ? 'dark' : 'light';
-  }
-  
-  if (theme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
-}
-
-/**
  * Hook para inicializar configurações
  */
 export const useInitializeConfig = () => {
-  const { loadConfig, getTheme } = useConfigStore();
+  const { loadConfig } = useConfigStore();
   
   useEffect(() => {
     loadConfig();
-    
-    // Aplicar tema inicial
-    applyTheme(getTheme());
-    
-    // Escutar mudanças na preferência do sistema
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (getTheme() === 'auto') {
-        applyTheme('auto');
-      }
-    };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [loadConfig, getTheme]);
+  }, [loadConfig]);
 };
 
 export default useConfigStore;

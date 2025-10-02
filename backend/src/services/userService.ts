@@ -108,12 +108,11 @@ class UserService {
     user.updated_at = new Date();
     
     // Gerar token JWT
-    const token = generateToken({
-      id: parseInt(user.id), // Converter string para number
-      email: user.email,
-      nome: user.nome,
-      perfil: user.role
-    });
+    const token = generateToken(
+      parseInt(user.id), // userId
+      user.email,        // email
+      user.role          // perfil
+    );
     
     // Retornar dados sem a senha
     const { senha_hash, ...userWithoutPassword } = user;

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPerfis, getPerfilById } from '../controllers/perfil.controller';
+import { getPerfis, getPerfilById, updatePerfilPermissoes, createPerfil, updatePerfil, deletePerfil } from '../controllers/perfil.controller';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
@@ -25,5 +25,36 @@ router.get('/', getPerfis);
  * @params  id: number
  */
 router.get('/:id', getPerfilById);
+
+/**
+ * @route   POST /api/perfis
+ * @desc    Criar novo perfil
+ * @access  Private (Admin only)
+ */
+router.post('/', createPerfil);
+
+/**
+ * @route   PUT /api/perfis/:id
+ * @desc    Atualizar perfil
+ * @access  Private (Admin only)
+ * @params  id: number
+ */
+router.put('/:id', updatePerfil);
+
+/**
+ * @route   PUT /api/perfis/:id/permissoes
+ * @desc    Atualizar permissões de um perfil
+ * @access  Private (Admin only)
+ * @params  id: number
+ */
+router.put('/:id/permissoes', updatePerfilPermissoes);
+
+/**
+ * @route   DELETE /api/perfis/:id
+ * @desc    Deletar perfil (soft delete)
+ * @access  Private (Admin only)
+ * @params  id: number
+ */
+router.delete('/:id', deletePerfil);
 
 export default router;

@@ -67,8 +67,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       // Registrar tentativa de login falhada
       await LoginHistoryService.recordLogin({
         usuarioId: 0, // ID 0 para usuário não encontrado
-        ip: req.ip || undefined,
-        userAgent: req.get('User-Agent') || undefined,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
         sucesso: false,
         motivo: 'Usuário não encontrado',
       });
@@ -80,8 +80,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       // Registrar tentativa de login falhada
       await LoginHistoryService.recordLogin({
         usuarioId: user.id,
-        ip: req.ip || undefined,
-        userAgent: req.get('User-Agent') || undefined,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
         sucesso: false,
         motivo: 'Usuário inativo',
       });
@@ -95,8 +95,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
       // Registrar tentativa de login falhada
       await LoginHistoryService.recordLogin({
         usuarioId: user.id,
-        ip: req.ip || undefined,
-        userAgent: req.get('User-Agent') || undefined,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
         sucesso: false,
         motivo: 'Senha incorreta',
       });
@@ -423,6 +423,11 @@ export const getUsers = asyncHandler(async (req: Request, res: Response) => {
 
 export const deleteUser = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
+  
+  if (!id) {
+    throw createValidationError('ID de usuário é obrigatório');
+  }
+  
   const userId = parseInt(id);
 
   if (isNaN(userId)) {
@@ -472,4 +477,119 @@ export const deleteUser = asyncHandler(async (req: AuthenticatedRequest, res: Re
   res.json({
     message: 'Usuário removido com sucesso',
   });
+});
+
+export const updateUser = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  
+  if (!id) {
+    throw createValidationError('ID do usuário é obrigatório');
+  }
+  
+  const userId = parseInt(id);
+
+  if (isNaN(userId)) {
+    throw createValidationError('ID do usuário deve ser um número válido');
+  }
+
+  // Schema de validação para atualização
+  const updateUserSchema = z.object({
+    nome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
+    email: z.string().email('Email inválido').optional(),
+    perfilId: z.number().int().positive('ID do perfil deve ser um número positivo').optional(),
+    ativo: z.boolean().optional(),
+    senha: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres').optional(),
+  });
+
+  const validatedData = updateUserSchema.parse(req.body);
+  
+  // Preparar dados para atualização
+  const updateData: any = {
+    nome: validatedData.nome,
+    email: validatedData.email,
+    perfilId: validatedData.perfilId,
+    ativo: validatedData.ativo,
+  };
+  
+  // Se uma nova senha foi fornecida, fazer hash dela
+  if (validatedData.senha) {
+    updateData.senha = await hashPassword(validatedData.senha);
+  }
+
+  // Verificar se o usuário existe
+  const existingUser = await prisma.usuario.findUnique({
+    where: { id: userId },
+    include: {
+      perfil: true,
+    },
+  });
+
+  if (!existingUser) {
+    throw new AppError('Usuário não encontrado', 404);
+  }
+
+  // Verificar se o email já está em uso por outro usuário
+  if (updateData.email && updateData.email !== existingUser.email) {
+    const emailExists = await prisma.usuario.findUnique({
+      where: { email: updateData.email },
+    });
+
+    if (emailExists) {
+      throw createValidationError('Este email já está em uso');
+    }
+  }
+
+  // Verificar se o perfil existe (se fornecido)
+  if (updateData.perfilId) {
+    const perfilExists = await prisma.perfil.findUnique({
+      where: { id: updateData.perfilId },
+    });
+
+    if (!perfilExists) {
+      throw createValidationError('Perfil não encontrado');
+    }
+  }
+
+  // Não permitir que o usuário desabilite a si mesmo
+  if (req.user?.userId === userId && updateData.ativo === false) {
+    throw new AppError('Não é possível desabilitar seu próprio usuário', 400);
+  }
+
+  // Atualizar o usuário
+  const updatedUser = await prisma.usuario.update({
+    where: { id: userId },
+    data: updateData,
+    include: {
+      perfil: true,
+    },
+  });
+
+  // TODO: Criar log da ação (modelo LogSistema precisa ser definido no schema)
+  /*
+  const logData = {
+    acao: 'ATUALIZAR_USUARIO',
+    usuarioId: req.user!.id,
+    detalhes: `Usuário ${updatedUser.nome} (ID: ${updatedUser.id}) foi atualizado`,
+    registroId: userId,
+    dadosAntigos: JSON.stringify({
+      nome: existingUser.nome,
+      email: existingUser.email,
+      perfilId: existingUser.perfilId,
+      ativo: existingUser.ativo,
+    }),
+    dadosNovos: JSON.stringify(updateData),
+  };
+  
+  if (req.ip) logData.ip = req.ip;
+  if (req.get('User-Agent')) logData.userAgent = req.get('User-Agent');
+  
+  await prisma.logSistema.create({
+    data: logData,
+  });
+  */
+
+  // Retornar usuário atualizado sem a senha
+  const { senha, ...userWithoutPassword } = updatedUser;
+
+  res.json(userWithoutPassword);
 });

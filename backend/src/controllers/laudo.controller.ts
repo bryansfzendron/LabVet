@@ -200,7 +200,8 @@ export const getLaudoById = async (req: Request, res: Response) => {
     });
 
     if (!laudo) {
-      return res.status(404).json({ error: 'Laudo não encontrado' });
+      res.status(404).json({ error: 'Laudo não encontrado' });
+      return;
     }
 
     return res.json(laudo);
@@ -422,7 +423,8 @@ export const signLaudo = async (req: Request, res: Response) => {
     });
 
     if (!laudo) {
-      return res.status(404).json({ error: 'Laudo não encontrado' });
+      res.status(404).json({ error: 'Laudo não encontrado' });
+      return;
     }
 
     if (laudo.assinado) {
@@ -486,7 +488,8 @@ export const sendLaudo = async (req: Request, res: Response) => {
     });
 
     if (!laudo) {
-      return res.status(404).json({ error: 'Laudo não encontrado' });
+      res.status(404).json({ error: 'Laudo não encontrado' });
+      return;
     }
 
     if (!laudo.assinado) {
@@ -513,12 +516,13 @@ export const sendLaudo = async (req: Request, res: Response) => {
 };
 
 // Gerar PDF do laudo
-export const generateLaudoPDF = async (req: Request, res: Response) => {
+export const generateLaudoPDF = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
     if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ error: 'ID do laudo inválido' });
+      res.status(400).json({ error: 'ID do laudo inválido' });
+      return;
     }
 
     const laudo = await prisma.laudo.findUnique({
@@ -563,7 +567,8 @@ export const generateLaudoPDF = async (req: Request, res: Response) => {
     });
 
     if (!laudo) {
-      return res.status(404).json({ error: 'Laudo não encontrado' });
+      res.status(404).json({ error: 'Laudo não encontrado' });
+      return;
     }
 
     // Criar PDF
@@ -668,7 +673,8 @@ export const generateLaudoPDF = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Erro ao gerar PDF do laudo:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+    res.status(500).json({ error: 'Erro interno do servidor' });
+    return;
   }
 };
 

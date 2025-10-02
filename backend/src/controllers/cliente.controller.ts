@@ -36,7 +36,7 @@ export const getClientes = async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * Number(limit);
     
     const where: any = {
-      ativo: ativo === 'true' ? 'S' : 'N'
+      ativo: (ativo === true || ativo === 'true') ? 'S' : 'N'
     };
     
     if (search) {

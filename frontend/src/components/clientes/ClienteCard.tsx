@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cliente } from '../../types/cliente';
+import { Cliente } from '@/types';
 import { CpfCnpjValidator } from '../../utils/cpfCnpjValidator';
 import { 
   User, 
@@ -31,7 +31,7 @@ const ClienteCard: React.FC<ClienteCardProps> = ({
   showActions = true
 }) => {
   const getDocumentType = () => {
-    return CpfCnpjValidator.detectDocumentType(cliente.cpfCnpj);
+    return CpfCnpjValidator.detectDocumentType(cliente.cpfCnpj || '');
   };
 
   const getStatusBadge = () => {
@@ -181,13 +181,13 @@ const ClienteCard: React.FC<ClienteCardProps> = ({
         <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center">
             <Calendar size={12} className="mr-1" />
-            Criado em {formatDate(cliente.createdAt)}
+            Criado em {formatDate(cliente.criadoEm)}
           </div>
           
-          {cliente.updatedAt !== cliente.createdAt && (
+          {cliente.atualizadoEm !== cliente.criadoEm && (
             <div className="flex items-center">
               <Calendar size={12} className="mr-1" />
-              Atualizado em {formatDate(cliente.updatedAt)}
+              Atualizado em {formatDate(cliente.atualizadoEm)}
             </div>
           )}
         </div>

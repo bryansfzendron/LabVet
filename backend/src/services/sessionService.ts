@@ -20,10 +20,10 @@ export class SessionService {
         data: {
           usuarioId: sessionData.usuarioId,
           token: sessionData.token,
-          ip: sessionData.ip,
-          userAgent: sessionData.userAgent,
+          ip: sessionData.ip || null,
+          userAgent: sessionData.userAgent || null,
           dispositivo: this.extractDevice(sessionData.userAgent),
-          localizacao: sessionData.localizacao,
+          localizacao: sessionData.localizacao || null,
         },
       });
 

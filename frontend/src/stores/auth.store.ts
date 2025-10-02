@@ -22,7 +22,7 @@ interface AuthState {
     nome: string;
     email: string;
     senha: string;
-    role: 'admin' | 'veterinario' | 'atendente' | 'user';
+    perfilId: number;
   }) => Promise<boolean>;
   changePassword: (data: {
     senhaAtual: string;
@@ -32,10 +32,17 @@ interface AuthState {
   clearError: () => void;
   
   // Getters
-  hasPermission: (requiredRole: User['role']) => boolean;
+  hasPermission: (permission: keyof User['perfil']['permissoes']) => boolean;
   isAdmin: () => boolean;
-  isManager: () => boolean;
-  isVeterinarian: () => boolean;
+  canManageUsers: () => boolean;
+  canAccessReports: () => boolean;
+  canManageOrders: () => boolean;
+  canManageClients: () => boolean;
+  canManageAnimals: () => boolean;
+  canManageExams: () => boolean;
+  canAccessFinancial: () => boolean;
+  canManageSchedule: () => boolean;
+  canAccessSettings: () => boolean;
 }
 
 // ================================
@@ -64,24 +71,8 @@ export const useAuthStore = create<AuthState>()(
         try {
           const response = await AuthService.login(credentials);
           
-          // Mapear perfil do backend para role do frontend
-          const perfilToRoleMap: Record<string, User['role']> = {
-            'ADMIN': 'admin',
-            'GERENTE': 'veterinario',
-            'VETERINARIO': 'veterinario',
-            'TECNICO': 'atendente',
-            'OPERADOR': 'user'
-          };
-
-          const mappedRole = perfilToRoleMap[response.user.perfil.codigo] || 'user';
-
-          const userWithRole = {
-            ...response.user,
-            role: mappedRole
-          };
-          
           set({
-            user: userWithRole,
+            user: response.user,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -138,22 +129,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          // Mapear role para perfil
-          const roleToPerfilMap = {
-            'admin': 'ADMIN',
-            'veterinario': 'VETERINARIO',
-            'atendente': 'TECNICO',
-            'user': 'OPERADOR'
-          } as const;
-
-          const registerData = {
-            nome: userData.nome,
-            email: userData.email,
-            senha: userData.senha,
-            perfil: roleToPerfilMap[userData.role] as 'ADMIN' | 'GERENTE' | 'VETERINARIO' | 'TECNICO' | 'OPERADOR'
-          };
-
-          await AuthService.register(registerData);
+          await AuthService.register(userData);
           
           set({
             isLoading: false,
@@ -218,22 +194,8 @@ export const useAuthStore = create<AuthState>()(
           const isValid = await AuthService.verifyToken();
           
           if (isValid) {
-            // Mapear perfil do backend para role do frontend
-            const perfilToRoleMap: Record<string, User['role']> = {
-              'ADMIN': 'admin',
-              'GERENTE': 'admin',
-              'VETERINARIO': 'veterinario',
-              'TECNICO': 'atendente',
-              'OPERADOR': 'user'
-            };
-
-            const userWithRole = {
-              ...currentUser,
-              role: perfilToRoleMap[currentUser.perfil.codigo] || 'user'
-            };
-
             set({
-              user: userWithRole,
+              user: currentUser,
               isAuthenticated: true,
               error: null,
             });
@@ -267,18 +229,11 @@ export const useAuthStore = create<AuthState>()(
       /**
        * Verificar permissão
        */
-      hasPermission: (requiredRole: User['role']): boolean => {
+      hasPermission: (permission: keyof User['perfil']['permissoes']): boolean => {
         const { user } = get();
         if (!user) return false;
 
-        const roleHierarchy: Record<User['role'], number> = {
-          admin: 4,
-          veterinario: 3,
-          atendente: 2,
-          user: 1,
-        };
-
-        return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
+        return !!user.perfil.permissoes[permission];
       },
 
       /**
@@ -289,17 +244,66 @@ export const useAuthStore = create<AuthState>()(
       },
 
       /**
-       * Verificar se é gerente ou superior
+       * Verificar se pode gerenciar usuários
        */
-      isManager: (): boolean => {
-        return get().hasPermission('veterinario');
+      canManageUsers: (): boolean => {
+        return get().hasPermission('usuarios');
       },
 
       /**
-       * Verificar se é veterinário ou superior
+       * Verificar se pode acessar relatórios
        */
-      isVeterinarian: (): boolean => {
-        return get().hasPermission('veterinario');
+      canAccessReports: (): boolean => {
+        return get().hasPermission('relatorios');
+      },
+
+      /**
+       * Verificar se pode gerenciar pedidos
+       */
+      canManageOrders: (): boolean => {
+        return get().hasPermission('pedidos');
+      },
+
+      /**
+       * Verificar se pode gerenciar clientes
+       */
+      canManageClients: (): boolean => {
+        return get().hasPermission('clientes');
+      },
+
+      /**
+       * Verificar se pode gerenciar animais
+       */
+      canManageAnimals: (): boolean => {
+        return get().hasPermission('animais');
+      },
+
+      /**
+       * Verificar se pode gerenciar exames
+       */
+      canManageExams: (): boolean => {
+        return get().hasPermission('exames');
+      },
+
+      /**
+       * Verificar se pode acessar financeiro
+       */
+      canAccessFinancial: (): boolean => {
+        return get().hasPermission('financeiro');
+      },
+
+      /**
+       * Verificar se pode gerenciar agenda
+       */
+      canManageSchedule: (): boolean => {
+        return get().hasPermission('agenda');
+      },
+
+      /**
+       * Verificar se pode acessar configurações
+       */
+      canAccessSettings: (): boolean => {
+        return get().hasPermission('configuracoes');
       },
     }),
     {

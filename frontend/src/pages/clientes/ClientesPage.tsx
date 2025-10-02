@@ -6,9 +6,7 @@ import {
   Plus,
   Users,
   Grid,
-  List,
-  Download,
-  Upload
+  List
 } from 'lucide-react';
 import { Cliente, ClienteFilters } from '@/types';
 import { clienteService, useClientes } from '@/services/cliente.service';
@@ -60,37 +58,23 @@ const ClientesPage: React.FC = () => {
   };
 
   const handleDeleteCliente = async (cliente: Cliente) => {
-    if (!confirm(`Tem certeza que deseja excluir o cliente ${cliente.nome}?`)) {
+    if (!confirm(`Tem certeza que deseja desativar o cliente ${cliente.nome}?`)) {
       return;
     }
 
     try {
-      await clienteService.delete(cliente.id);
-      toast.success('Cliente excluído com sucesso!');
+      await clienteService.desativar(cliente.id);
+      toast.success('Cliente desativado com sucesso!');
       refetch();
     } catch (error) {
-      console.error('Erro ao excluir cliente:', error);
-      toast.error('Erro ao excluir cliente');
+      console.error('Erro ao desativar cliente:', error);
+      toast.error('Erro ao desativar cliente');
     }
   };
 
-  const handleToggleStatus = async (cliente: Cliente) => {
-    try {
-      if (cliente.ativo) {
-        await clienteService.deactivate(cliente.id);
-        toast.success('Cliente desativado com sucesso!');
-      } else {
-        await clienteService.reactivate(cliente.id);
-        toast.success('Cliente reativado com sucesso!');
-      }
-      refetch();
-    } catch (error) {
-      console.error('Erro ao alterar status do cliente:', error);
-      toast.error('Erro ao alterar status do cliente');
-    }
-  };
 
-  const handleSaveCliente = (cliente: Cliente) => {
+
+  const handleSaveCliente = (_cliente: Cliente) => {
     setShowForm(false);
     setEditingCliente(null);
     toast.success(editingCliente ? 'Cliente atualizado com sucesso!' : 'Cliente criado com sucesso!');
@@ -201,36 +185,7 @@ const ClientesPage: React.FC = () => {
         {/* Filtros Expandidos */}
         {showFilters && (
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ordenar por
-                </label>
-                <select
-                  value={filters.sortBy || 'nome'}
-                  onChange={(e) => handleFilterChange({ sortBy: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="nome">Nome</option>
-                  <option value="email">Email</option>
-                  <option value="createdAt">Data de criação</option>
-                  <option value="updatedAt">Última atualização</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Direção
-                </label>
-                <select
-                  value={filters.sortOrder || 'asc'}
-                  onChange={(e) => handleFilterChange({ sortOrder: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="asc">Crescente</option>
-                  <option value="desc">Decrescente</option>
-                </select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

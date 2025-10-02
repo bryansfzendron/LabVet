@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 import { CpfCnpjValidator, useCpfCnpjValidation } from '../../utils/cpfCnpjValidator';
 import { CheckCircle, XCircle, AlertCircle, Info, Shuffle } from 'lucide-react';
 
@@ -35,18 +35,33 @@ const CpfCnpjInput = forwardRef<HTMLInputElement, CpfCnpjInputProps>(({
     generateValid
   } = useCpfCnpjValidation(value);
 
-  // Sincroniza com valor externo
-  useEffect(() => {
-    if (value !== inputValue) {
-      handleChange(value);
-    }
-  }, [value]);
+  // Usar useRef para manter referências estáveis das funções
+  const onChangeRef = useRef(onChange);
+  const onValidationChangeRef = useRef(onValidationChange);
 
-  // Notifica mudanças
+  // Atualizar as referências quando as funções mudarem
   useEffect(() => {
-    onChange?.(inputValue, validation.isValid);
-    onValidationChange?.(validation);
-  }, [inputValue, validation, onChange, onValidationChange]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  useEffect(() => {
+    onValidationChangeRef.current = onValidationChange;
+  }, [onValidationChange]);
+
+  // Sincroniza com valor externo - apenas quando o valor externo muda
+  const prevValueRef = useRef(value);
+  useEffect(() => {
+    if (value !== prevValueRef.current && value !== inputValue) {
+      handleChange(value);
+      prevValueRef.current = value;
+    }
+  }, [value]); // Removido inputValue e handleChange das dependências
+
+  // Notifica mudanças - usando as referências estáveis
+  useEffect(() => {
+    onChangeRef.current?.(inputValue, validation.isValid);
+    onValidationChangeRef.current?.(validation);
+  }, [inputValue, validation]);
 
   const getValidationIcon = () => {
     if (!showValidationIcon || inputValue.length === 0) return null;

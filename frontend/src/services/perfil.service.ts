@@ -1,4 +1,4 @@
-import { get } from './api';
+import { get, post, put, del } from './api';
 
 // ================================
 // TIPOS PARA PERFIS
@@ -10,6 +10,48 @@ export interface Perfil {
   codigo: string;
   descricao?: string;
   permissoes?: Record<string, any>;
+  ativo: boolean;
+}
+
+export interface CreatePerfilData {
+  nome: string;
+  codigo: string;
+  descricao?: string;
+  permissoes?: {
+    admin?: boolean;
+    configuracoes?: boolean;
+    usuarios?: boolean;
+    relatorios?: boolean;
+    pedidos?: boolean;
+    laudos?: boolean;
+    clientes?: boolean;
+    animais?: boolean;
+    exames?: boolean;
+    financeiro?: boolean;
+    agenda?: boolean;
+    dashboard?: boolean;
+  };
+}
+
+export interface UpdatePerfilData {
+  nome?: string;
+  codigo?: string;
+  descricao?: string;
+  ativo?: boolean;
+  permissoes?: {
+    admin?: boolean;
+    configuracoes?: boolean;
+    usuarios?: boolean;
+    relatorios?: boolean;
+    pedidos?: boolean;
+    laudos?: boolean;
+    clientes?: boolean;
+    animais?: boolean;
+    exames?: boolean;
+    financeiro?: boolean;
+    agenda?: boolean;
+    dashboard?: boolean;
+  };
 }
 
 // ================================
@@ -40,6 +82,44 @@ export class PerfilService {
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
       throw new Error('Falha ao carregar perfil');
+    }
+  }
+
+  /**
+   * Criar novo perfil
+   */
+  static async createPerfil(data: CreatePerfilData): Promise<Perfil> {
+    try {
+      const response = await post<{ perfil: Perfil }>('/perfis', data);
+      return response.perfil;
+    } catch (error) {
+      console.error('Erro ao criar perfil:', error);
+      throw new Error('Falha ao criar perfil');
+    }
+  }
+
+  /**
+   * Atualizar perfil
+   */
+  static async updatePerfil(id: number, data: UpdatePerfilData): Promise<Perfil> {
+    try {
+      const response = await put<{ perfil: Perfil }>(`/perfis/${id}`, data);
+      return response.perfil;
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      throw new Error('Falha ao atualizar perfil');
+    }
+  }
+
+  /**
+   * Deletar perfil
+   */
+  static async deletePerfil(id: number): Promise<void> {
+    try {
+      await del(`/perfis/${id}`);
+    } catch (error) {
+      console.error('Erro ao deletar perfil:', error);
+      throw new Error('Falha ao deletar perfil');
     }
   }
 

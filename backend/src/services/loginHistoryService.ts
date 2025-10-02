@@ -17,12 +17,12 @@ export class LoginHistoryService {
       await prisma.historicoLogin.create({
         data: {
           usuarioId: loginData.usuarioId,
-          ip: loginData.ip,
-          userAgent: loginData.userAgent,
+          ip: loginData.ip || null,
+          userAgent: loginData.userAgent || null,
           dispositivo: this.extractDevice(loginData.userAgent),
-          localizacao: loginData.localizacao,
+          localizacao: loginData.localizacao || null,
           sucesso: loginData.sucesso,
-          motivo: loginData.motivo,
+          motivo: loginData.motivo || null,
         },
       });
     } catch (error) {

@@ -1,0 +1,19 @@
+import { Request, Response } from 'express';
+export declare const getDashboardMetrics: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getPedidosPorMes: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getReceitaPorMes: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getTopClientes: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getExamesPorTipo: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getPerformanceProfissionais: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorioCompleto: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getDashboardStats: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getExamesPorMes: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorioFinanceiro: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorioProdutividade: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorioExamesLiberados: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorio: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const createRelatorio: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const updateRelatorio: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const deleteRelatorio: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getRelatorioById: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+//# sourceMappingURL=relatorio.controller.d.ts.map

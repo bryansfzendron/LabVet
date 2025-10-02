@@ -18,7 +18,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
-import { AuthService } from '@/services/auth.service';
+
 import Logo from '@/components/ui/Logo';
 
 // ================================
@@ -29,7 +29,7 @@ interface MenuItem {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  requiredRole?: 'admin' | 'veterinario' | 'atendente' | 'user';
+  requiredRole?: keyof import('@/types').PerfilPermissoes;
   badge?: string;
 }
 
@@ -73,19 +73,19 @@ const menuItems: MenuItem[] = [
     name: 'Relatórios',
     href: '/dashboard/relatorios',
     icon: BarChart3,
-    requiredRole: 'veterinario',
+    requiredRole: 'relatorios',
   },
   {
     name: 'Financeiro',
     href: '/dashboard/financeiro',
     icon: DollarSign,
-    requiredRole: 'admin',
+    requiredRole: 'financeiro',
   },
   {
     name: 'Configurações',
     href: '/dashboard/configuracoes',
     icon: Settings,
-    requiredRole: 'admin',
+    requiredRole: 'configuracoes',
   },
 ];
 
@@ -200,7 +200,7 @@ const DashboardLayout: React.FC = () => {
                 {user?.nome || 'Usuário'}
               </p>
               <p className="text-xs text-gray-500 truncate">
-                {user?.role || 'Usuário'}
+                {user?.perfil?.nome || 'Usuário'}
               </p>
             </div>
           </div>

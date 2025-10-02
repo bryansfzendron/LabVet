@@ -4,31 +4,31 @@ import { useAuthStore } from '@/stores/auth.store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'veterinario' | 'atendente' | 'user';
+  requiredPermission?: keyof import('@/types').PerfilPermissoes;
   fallbackPath?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requiredRole,
+  requiredPermission,
   fallbackPath = '/dashboard'
 }) => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, hasPermission } = useAuthStore();
   const location = useLocation();
 
-  // Verificar se está autenticado
-  if (!isAuthenticated) {
+  // Se não estiver autenticado, redirecionar para login
+  if (!isAuthenticated || !user) {
     return (
       <Navigate
-        to="/auth/login"
-        state={{ from: location.pathname }}
+        to="/login"
+        state={{ from: location }}
         replace
       />
     );
   }
 
-  // Verificar se o usuário tem a role necessária
-  if (requiredRole && user?.role !== requiredRole) {
+  // Verificar se o usuário tem a permissão necessária
+  if (requiredPermission && !hasPermission(requiredPermission)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md mx-auto p-6">
@@ -56,9 +56,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             Você não tem permissão para acessar esta página.
             <br />
             <span className="text-sm">
-              Permissão necessária: <strong>{requiredRole}</strong>
+              Permissão necessária: <strong>{requiredPermission}</strong>
               <br />
-              Seu nível: <strong>{user?.role}</strong>
+              Seu perfil: <strong>{user?.perfil?.nome}</strong>
             </span>
           </p>
 

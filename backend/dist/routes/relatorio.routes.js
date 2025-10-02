@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth");
+const relatorio_controller_1 = require("../controllers/relatorio.controller");
+const router = (0, express_1.Router)();
+router.get('/dashboard', auth_1.authenticateToken, relatorio_controller_1.getDashboardMetrics);
+router.get('/dashboard-stats', auth_1.authenticateToken, relatorio_controller_1.getDashboardStats);
+router.get('/pedidos-por-mes', auth_1.authenticateToken, relatorio_controller_1.getPedidosPorMes);
+router.get('/exames-por-mes', auth_1.authenticateToken, relatorio_controller_1.getExamesPorMes);
+router.get('/receita-por-mes', auth_1.authenticateToken, relatorio_controller_1.getReceitaPorMes);
+router.get('/top-clientes', auth_1.authenticateToken, relatorio_controller_1.getTopClientes);
+router.get('/exames-por-tipo', auth_1.authenticateToken, relatorio_controller_1.getExamesPorTipo);
+router.get('/performance-profissionais', auth_1.authenticateToken, relatorio_controller_1.getPerformanceProfissionais);
+router.get('/relatorio-completo', auth_1.authenticateToken, relatorio_controller_1.getRelatorioCompleto);
+router.get('/exames-liberados', auth_1.authenticateToken, relatorio_controller_1.getRelatorioExamesLiberados);
+router.get('/financeiro', auth_1.authenticateToken, relatorio_controller_1.getRelatorioFinanceiro);
+router.get('/produtividade', auth_1.authenticateToken, relatorio_controller_1.getRelatorioProdutividade);
+router.get('/', auth_1.authenticateToken, relatorio_controller_1.getRelatorio);
+router.get('/:id', auth_1.authenticateToken, relatorio_controller_1.getRelatorioById);
+router.post('/', auth_1.authenticateToken, relatorio_controller_1.createRelatorio);
+router.put('/:id', auth_1.authenticateToken, relatorio_controller_1.updateRelatorio);
+router.delete('/:id', auth_1.authenticateToken, relatorio_controller_1.deleteRelatorio);
+exports.default = router;
+//# sourceMappingURL=relatorio.routes.js.map

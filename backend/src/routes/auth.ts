@@ -11,7 +11,8 @@ import {
   changePassword, 
   logout, 
   getUsers, 
-  deleteUser 
+  deleteUser,
+  updateUser 
 } from '../controllers/auth.controller';
 
 const router = Router();
@@ -23,6 +24,7 @@ router.get('/verify', authenticateToken, verifyToken);
 router.post('/change-password', authenticateToken, changePassword);
 router.post('/logout', authenticateToken, logout);
 router.get('/users', authenticateToken, requireAdmin, getUsers);
+router.put('/users/:id', authenticateToken, requireAdmin, updateUser);
 router.delete('/users/:id', authenticateToken, requireAdmin, deleteUser);
 
 // Novas rotas para dados reais
@@ -36,8 +38,13 @@ router.get('/sessions', authenticateToken, requireAdmin, asyncHandler(async (req
 }));
 
 // Terminar sessão específica
-router.post('/sessions/:id/terminate', authenticateToken, requireAdmin, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+router.post('/sessions/:id/terminate', authenticateToken, requireAdmin, asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const { id } = req.params;
+  
+  if (!id) {
+    res.status(400).json({ error: 'ID da sessão é obrigatório' });
+    return;
+  }
   
   await SessionService.endSessionById(id);
   

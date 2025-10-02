@@ -12,17 +12,19 @@ export interface AuthenticatedRequest extends Request {
 }
 
 // Middleware de autenticação
-export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Token de acesso requerido' });
+    res.status(401).json({ error: 'Token de acesso requerido' });
+    return;
   }
 
   jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
     if (err) {
-      return res.status(403).json({ error: 'Token inválido' });
+      res.status(403).json({ error: 'Token inválido' });
+      return;
     }
     
     console.log('🔍 Token decodificado:', decoded);
@@ -32,20 +34,22 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
 };
 
 // Middleware para verificar se é admin
-export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   if (!req.user || req.user.perfil?.toUpperCase() !== 'ADMIN') {
-    return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    return;
   }
   
   next();
 };
 
 // Middleware para verificar se é veterinário ou admin
-export const requireVeterinarian = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const requireVeterinarian = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   if (!req.user || !['ADMIN', 'VETERINARIO'].includes(req.user.perfil.toUpperCase())) {
-    return res.status(403).json({ error: 'Acesso negado. Apenas veterinários e administradores.' });
+    res.status(403).json({ error: 'Acesso negado. Apenas veterinários e administradores.' });
+    return;
   }
-  return next();
+  next();
 };
 
 // Função para gerar token

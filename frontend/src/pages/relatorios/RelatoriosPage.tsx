@@ -7,9 +7,7 @@ import {
   TrendingUp,
   Calendar,
   Activity,
-  PieChart,
-  Download,
-  Filter
+  Download
 } from 'lucide-react';
 import MetricCard from '../../components/relatorios/MetricCard';
 import ChartCard from '../../components/relatorios/ChartCard';

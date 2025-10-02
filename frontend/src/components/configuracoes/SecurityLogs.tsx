@@ -1,28 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Shield, 
   Activity, 
   Users, 
   Clock, 
-  AlertTriangle, 
-  Eye, 
-  X,
-  Download,
-  Filter,
-  Search,
-  Calendar
+  AlertTriangle
 } from 'lucide-react';
-import { LogsService, LogSistema, SessaoAtiva } from '@/services/logs.service';
+import { LogsService } from '@/services/logs.service';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAuthStore } from '@/stores/auth.store';
+import { useSecurityLogsConditional } from '@/hooks/useSecurityLogsConditional';
 
 const SecurityLogs: React.FC = () => {
+  const { user: currentUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState<'logs' | 'sessions' | 'history'>('logs');
-  const [logs, setLogs] = useState<LogSistema[]>([]);
-  const [sessoes, setSessoes] = useState<SessaoAtiva[]>([]);
-  const [historicoLogin, setHistoricoLogin] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState<any>(null);
+  
+  // Verificar se o usuário é admin
+  const isAdmin = currentUser?.perfil?.permissoes?.admin;
+  
+  // Usar hook condicional
+  const {
+    logs,
+    sessoes,
+    historicoLogin,
+    loading,
+    stats,
+    loadData,
+    loadStats
+  } = useSecurityLogsConditional({ enabled: !!isAdmin });
   
   // Filtros
   const [filtros, setFiltros] = useState({
@@ -33,62 +38,13 @@ const SecurityLogs: React.FC = () => {
     limit: 20
   });
 
-  // Carregar dados iniciais
+  // Carregar dados iniciais apenas se for admin
   useEffect(() => {
-    loadData();
-    loadStats();
-  }, [activeTab, filtros]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      switch (activeTab) {
-        case 'logs':
-          const logsResponse = await LogsService.getLogs(filtros);
-          console.log('Resposta dos logs:', logsResponse); // Debug
-          if (logsResponse && logsResponse.logs) {
-            setLogs(logsResponse.logs);
-          } else {
-            console.error('Estrutura de resposta inválida:', logsResponse);
-            setLogs([]);
-          }
-          break;
-        case 'sessions':
-          const sessoesData = await LogsService.getSessoesAtivas();
-          setSessoes(sessoesData || []);
-          break;
-        case 'history':
-          const historicoData = await LogsService.getHistoricoLogin();
-          setHistoricoLogin(historicoData || []);
-          break;
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      // Definir valores padrão em caso de erro
-      switch (activeTab) {
-        case 'logs':
-          setLogs([]);
-          break;
-        case 'sessions':
-          setSessoes([]);
-          break;
-        case 'history':
-          setHistoricoLogin([]);
-          break;
-      }
-    } finally {
-      setLoading(false);
+    if (isAdmin) {
+      loadData(activeTab, filtros);
+      loadStats();
     }
-  };
-
-  const loadStats = async () => {
-    try {
-      const statsData = await LogsService.getLogStats();
-      setStats(statsData);
-    } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error);
-    }
-  };
+  }, [activeTab, filtros, isAdmin]);
 
   const formatDate = (date: string) => {
     return format(new Date(date), 'dd/MM/yyyy HH:mm:ss', { locale: ptBR });
@@ -112,11 +68,12 @@ const SecurityLogs: React.FC = () => {
   };
 
   const handleEncerrarSessao = async (sessionId: string) => {
+    if (!isAdmin) return;
+    
     try {
       await LogsService.encerrarSessao(sessionId);
       // Recarregar sessões após encerrar
-      const sessoesData = await LogsService.getSessoesAtivas();
-      setSessoes(sessoesData || []);
+      await loadData('sessions', filtros);
     } catch (error) {
       console.error('Erro ao encerrar sessão:', error);
     }
@@ -416,6 +373,21 @@ const SecurityLogs: React.FC = () => {
       )}
     </div>
   );
+
+  // Verificar se o usuário tem permissão de admin
+  if (!isAdmin) {
+    return (
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="text-center">
+          <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Acesso Restrito</h3>
+          <p className="text-gray-500">
+            Você não tem permissão para acessar os logs de segurança do sistema.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

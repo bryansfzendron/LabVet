@@ -39,8 +39,8 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
     
     requestLog.duration = duration;
     requestLog.statusCode = res.statusCode;
-    if (req.user?.id) {
-      requestLog.userId = req.user.id;
+    if (req.user?.userId) {
+      requestLog.userId = req.user.userId;
     }
 
     // Log da resposta
